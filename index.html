@@ -4,7 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>遺言書みっけ｜あなたの想い、ご家族に確実に届けるために</title>
+  <link rel="icon" type="image/png" href="https://spc-jp.github.io/yuigon-mikke/favicon.png">
+  <link rel="apple-touch-icon" href="https://spc-jp.github.io/yuigon-mikke/favicon.png">
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Word出力用ライブラリ -->
+  <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+  <!-- PDF出力用ライブラリ (追加) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
@@ -104,6 +111,11 @@
     .modal { background: #fff; border-radius: 20px; padding: 30px; max-width: 420px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,.28); }
     @keyframes fadeUp { from { opacity:0; transform:translateY(18px);} to { opacity:1; transform:translateY(0);} }
     .fade-up { animation: fadeUp .45s ease forwards; }
+
+    /* 質問番号のポップインアニメーション追加 */
+    @keyframes popIn { 0% { opacity:0; transform:scale(0.5); } 60% { transform:scale(1.15); } 100% { opacity:1; transform:scale(1); } }
+    .pop-in { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
     @media print {
       body { background: #fff; }
       .no-print { display: none !important; }
@@ -120,24 +132,24 @@
 
 <!-- ========== TOP ========== -->
 <div id="screen-top" class="screen active">
-  <header class="grad text-white">
-    <div class="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-2">
+  <div class="grad text-white">
+    <header class="max-w-2xl mx-auto px-4 py-5 flex items-center justify-between">
+      <div class="flex items-center gap-2 cursor-pointer" onclick="showScreen('screen-top')">
         <span class="text-2xl">📜</span>
         <span class="serif font-bold text-xl">遺言書みっけ</span>
       </div>
-      <span id="hdr-firm" class="text-sm opacity-80"></span>
-    </div>
-  </header>
+      <span id="hdr-firm" class="text-sm opacity-90 font-medium"></span>
+    </header>
 
-  <div class="grad text-white text-center px-4 pt-14 pb-16">
-    <div class="max-w-xl mx-auto">
-      <p class="text-xs tracking-widest opacity-70 mb-3 uppercase">Yuigon Mikke</p>
-      <h1 class="serif text-3xl md:text-4xl font-bold leading-tight mb-4">遺言書みっけ</h1>
-      <p class="text-lg opacity-90 leading-relaxed mb-2">あなたの想い、ご家族に<br>確実に届けるために</p>
-      <p class="text-sm opacity-65 mb-8">12の質問で、あなたに必要な遺言書準備がわかります</p>
-      <button onclick="startQuiz()" class="btn-main text-lg">📝 診断スタート（無料）</button>
-      <p class="text-xs opacity-55 mt-3">所要時間：約3〜5分</p>
+    <div class="text-center px-4 pt-8 pb-20">
+      <div class="max-w-xl mx-auto">
+        <p class="text-xs tracking-widest opacity-70 mb-4 uppercase">Yuigon Mikke</p>
+        <h1 class="serif text-4xl md:text-5xl font-bold leading-tight mb-6">遺言書みっけ</h1>
+        <p class="text-lg md:text-xl opacity-90 leading-relaxed mb-4">あなたの想い、ご家族に<br>確実に届けるために</p>
+        <p class="text-sm md:text-base opacity-75 mb-10">12の質問で、あなたに必要な遺言書準備がわかります</p>
+        <button onclick="startQuiz()" class="btn-main text-lg shadow-lg">📝 診断スタート（無料）</button>
+        <p class="text-xs opacity-60 mt-4">所要時間：約3〜5分</p>
+      </div>
     </div>
   </div>
 
@@ -161,7 +173,7 @@
     </div>
     <div class="card" style="background:#eff6ff; border:1px solid #bfdbfe;">
       <p class="text-xs text-blue-700 leading-relaxed text-center">
-        ⚠️ 本ツールは参考情報の提供を目的とするものです。法的に有効な遺言書の作成には、税理士・弁護士等の専門家にご相談ください。
+        ⚠️ 本ツールは参考情報の提供を目的とするものです。法的に有効な遺言書の作成には、<br>税理士・弁護士等の専門家にご相談ください。
       </p>
     </div>
   </div>
@@ -176,7 +188,7 @@
 <div id="screen-quiz" class="screen">
   <header class="grad text-white">
     <div class="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
-      <span class="serif font-bold">遺言書みっけ</span>
+      <span class="serif font-bold cursor-pointer" onclick="showScreen('screen-top')">遺言書みっけ</span>
       <span class="text-sm opacity-65">診断中</span>
     </div>
   </header>
@@ -206,7 +218,7 @@
 <div id="screen-result" class="screen">
   <header class="grad text-white">
     <div class="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
-      <span class="serif font-bold">遺言書みっけ</span>
+      <span class="serif font-bold cursor-pointer" onclick="showScreen('screen-top')">遺言書みっけ</span>
       <span class="text-sm opacity-65">診断結果</span>
     </div>
   </header>
@@ -242,7 +254,6 @@
       </ul>
       <div class="text-center">
         <button onclick="openPremGate()" class="btn-gold">🔓 詳細結果＋下書きを確認する</button>
-        <p class="text-xs text-gray-400 mt-2">※すでにアクセスコードをお持ちの方はそのまま入力できます</p>
       </div>
     </div>
 
@@ -256,7 +267,7 @@
 <div id="screen-premium" class="screen">
   <header class="grad text-white no-print">
     <div class="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
-      <span class="serif font-bold">遺言書みっけ</span>
+      <span class="serif font-bold cursor-pointer" onclick="showScreen('screen-top')">遺言書みっけ</span>
       <span class="text-sm opacity-65">詳細結果</span>
     </div>
   </header>
@@ -281,8 +292,14 @@
       <p id="p-detail" class="text-sm text-gray-600 leading-relaxed"></p>
     </div>
 
-    <div class="card">
-      <h3 class="serif font-bold text-gray-800 mb-1 flex items-center gap-2">📄 遺言書下書き（自筆証書遺言）</h3>
+    <div class="card relative">
+      <div class="flex flex-wrap gap-2 items-center justify-between mb-1">
+        <h3 class="serif font-bold text-gray-800 flex items-center gap-2">📄 遺言書下書き（自筆証書遺言）</h3>
+        <button onclick="downloadWord()" class="btn-sub text-xs py-1.5 px-3 no-print flex items-center gap-1" style="border-width: 1px; padding: 6px 12px; font-size: 13px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
+          Wordで保存
+        </button>
+      </div>
       <p class="text-xs text-gray-400 mb-4">※参考用の下書きです。法的有効性は専門家にご確認ください。</p>
       <div id="p-will" class="will-box"></div>
     </div>
@@ -305,7 +322,7 @@
     </div>
 
     <div class="text-center space-y-3 pb-6 no-print">
-      <button onclick="window.print()" class="btn-main w-full max-w-sm">🖨️ PDFで保存する</button>
+      <button onclick="downloadPDF()" class="btn-main w-full max-w-sm">🖨️ PDFで保存する</button>
       <br>
       <button onclick="showScreen('screen-result')" class="btn-sub">← 診断結果に戻る</button>
     </div>
@@ -318,55 +335,7 @@
   </div>
 </div>
 
-<!-- ========== MODAL: PASSWORD ========== -->
-<div id="modal-pw" class="overlay" style="display:none;">
-  <div class="modal">
-    <button onclick="closeModal('modal-pw')" class="float-right text-gray-300 text-xl leading-none">&times;</button>
-    <div class="clear-both mb-2"></div>
-    <h3 class="serif text-xl font-bold text-center mb-1">詳細結果を確認する</h3>
-    <p class="text-sm text-gray-500 text-center mb-5">アクセスコードをお持ちの方</p>
-    <input type="password" id="pw-input" placeholder="アクセスコードを入力"
-      class="w-full border border-gray-300 rounded-xl px-4 py-3 text-center text-lg tracking-widest mb-2 focus:outline-none focus:border-blue-500"
-      onkeypress="if(event.key==='Enter')checkPw()">
-    <p id="pw-err" class="text-red-500 text-xs text-center mb-3 hidden">コードが違います。もう一度お試しください。</p>
-    <button onclick="checkPw()" class="btn-main w-full mb-5">🔓 確認する</button>
-    <hr class="border-gray-200 mb-4">
-    <p class="text-center text-sm text-gray-500 mb-3">アクセスコードをお持ちでない方</p>
-    <a href="STRIPE_URL_HERE" target="_blank" class="btn-gold w-full text-center block py-4">
-      💳 購入してアクセスコードを取得
-    </a>
-    <p class="text-xs text-gray-400 text-center mt-2">決済後、メールでアクセスコードをお送りします</p>
-  </div>
-</div>
-
-<!-- ========== MODAL: LIMIT ========== -->
-<div id="modal-limit" class="overlay" style="display:none;">
-  <div class="modal">
-    <h3 class="serif text-xl font-bold text-center mb-2">無料診断の上限に達しました</h3>
-    <p class="text-sm text-gray-600 text-center mb-4 leading-relaxed">
-      無料版での診断は3回までです。<br>引き続きご利用にはプレミアムプランをどうぞ。
-    </p>
-    <div class="rounded-xl p-4 mb-4" style="background:#eff6ff;">
-      <p class="text-sm font-bold text-gray-800 mb-2">プレミアムプランでできること</p>
-      <ul class="text-sm text-gray-700 space-y-1">
-        <li>✓ 診断回数無制限</li>
-        <li>✓ 遺言書下書き生成</li>
-        <li>✓ 相続税ざっくり試算</li>
-        <li>✓ PDF保存（事務所名入り）</li>
-      </ul>
-    </div>
-    <a href="STRIPE_URL_HERE" target="_blank" class="btn-gold w-full block text-center py-4 mb-3">
-      💳 プレミアムプランに申し込む
-    </a>
-    <button onclick="closeModal('modal-limit')" class="w-full text-sm text-gray-400 py-2">閉じる</button>
-  </div>
-</div>
-
 <script>
-// ========== CONFIG ==========
-const PW       = 'YUIGON2026';
-const FREE_MAX = 3;
-
 // ========== STATE ==========
 const S = {
   q: 0,
@@ -374,9 +343,7 @@ const S = {
   sel: null,
   score: 0,
   type: '',
-  firm: '',
-  premium: false,
-  uses: 0
+  firm: ''
 };
 
 // ========== QUESTIONS ==========
@@ -399,8 +366,6 @@ const QS = [
 window.addEventListener('DOMContentLoaded', () => {
   const p = new URLSearchParams(location.search);
   S.firm    = p.get('firm') || '';
-  S.premium = localStorage.getItem('ym_prem') === '1';
-  S.uses    = parseInt(localStorage.getItem('ym_uses') || '0', 10);
   if (S.firm) {
     document.getElementById('hdr-firm').textContent = S.firm;
     document.getElementById('ftr-firm').textContent = S.firm;
@@ -417,10 +382,6 @@ function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
 // ========== QUIZ ==========
 function startQuiz() {
-  if (!S.premium && S.uses >= FREE_MAX) {
-    document.getElementById('modal-limit').style.display = 'flex';
-    return;
-  }
   S.q = 0; S.ans = {}; S.sel = null;
   showScreen('screen-quiz');
   renderQ();
@@ -443,6 +404,11 @@ function renderQ() {
     b.className = 'opt-btn' + (S.sel === i ? ' chosen' : '');
     b.textContent = o;
     b.onclick = () => pick(i);
+    
+    // 選択肢が上から順に時間差で現れるアニメーション
+    b.style.opacity = '0';
+    b.style.animation = `fadeUp 0.4s ease forwards ${i * 0.08 + 0.15}s`;
+    
     opts.appendChild(b);
   });
   const nb = document.getElementById('btn-next');
@@ -450,8 +416,13 @@ function renderQ() {
   nb.textContent = S.q === tot - 1 ? '診断結果を見る ✓' : '次へ →';
   const pb = document.getElementById('btn-prev');
   pb.classList.toggle('hidden', S.q === 0);
+  
   const card = document.getElementById('quiz-card');
   card.classList.remove('fade-up'); void card.offsetWidth; card.classList.add('fade-up');
+
+  // 質問番号アイコンのアニメーション再トリガー
+  const qNum = document.getElementById('q-num');
+  qNum.classList.remove('pop-in'); void qNum.offsetWidth; qNum.classList.add('pop-in');
 }
 
 function pick(i) {
@@ -610,8 +581,6 @@ function makeChecklist() {
 
 // ========== FINISH QUIZ ==========
 function finish() {
-  S.uses++;
-  localStorage.setItem('ym_uses', S.uses);
   S.score = calcScore();
   S.type  = typeOf(S.score);
   renderResult();
@@ -637,26 +606,10 @@ function renderResult() {
 
 // ========== PREMIUM ==========
 function openPremGate() {
-  if (S.premium) { renderPremium(); showScreen('screen-premium'); return; }
-  document.getElementById('pw-input').value = '';
-  document.getElementById('pw-err').classList.add('hidden');
-  document.getElementById('modal-pw').style.display = 'flex';
-  setTimeout(() => document.getElementById('pw-input').focus(), 100);
+  renderPremium();
+  showScreen('screen-premium');
 }
-function checkPw() {
-  const v = document.getElementById('pw-input').value.trim().toUpperCase();
-  if (v === PW) {
-    S.premium = true;
-    localStorage.setItem('ym_prem', '1');
-    closeModal('modal-pw');
-    renderPremium();
-    showScreen('screen-premium');
-  } else {
-    document.getElementById('pw-err').classList.remove('hidden');
-    document.getElementById('pw-input').value = '';
-    document.getElementById('pw-input').focus();
-  }
-}
+
 function renderPremium() {
   const d = RD[S.type];
   const firm = S.firm || 'Smart Solutions / SPC';
@@ -672,6 +625,105 @@ function renderPremium() {
   document.getElementById('p-will').textContent     = makeWill();
   document.getElementById('p-tax').innerHTML        = makeTax();
   document.getElementById('p-checklist').innerHTML  = makeChecklist();
+}
+
+// ========== WORD EXPORT ==========
+function downloadWord() {
+  if (typeof docx === 'undefined') {
+    alert('Word出力機能の読み込みに失敗しました。通信環境を確認してページを再読み込みしてください。');
+    return;
+  }
+  const willText = document.getElementById('p-will').innerText;
+  const { Document, Packer, Paragraph, TextRun } = docx;
+
+  const paragraphs = willText.split('\n').map(line => {
+    return new Paragraph({
+      children: [new TextRun({ text: line, font: "ＭＳ 明朝", size: 24 })], // size 24 = 12pt
+    });
+  });
+
+  const doc = new Document({
+    sections: [{
+      properties: {},
+      children: paragraphs
+    }]
+  });
+
+  Packer.toBlob(doc).then(blob => {
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = '遺言書下書き.docx';
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(() => {
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    }, 100);
+  }).catch(err => {
+    console.error(err);
+    alert('Wordファイルの作成中にエラーが発生しました。');
+  });
+}
+
+// ========== PDF EXPORT ==========
+async function downloadPDF() {
+  if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
+    alert('PDF出力機能の読み込みに失敗しました。通信環境を確認してページを再読み込みしてください。');
+    return;
+  }
+  
+  const element = document.getElementById('screen-premium');
+  
+  // PDF出力用に一時的に表示を切り替え（ボタン等を隠し、印刷用ヘッダーを表示）
+  const noPrints = element.querySelectorAll('.no-print');
+  const printShows = element.querySelectorAll('.print-show');
+  
+  noPrints.forEach(el => el.style.display = 'none');
+  printShows.forEach(el => el.style.display = 'block');
+  
+  const originalBg = element.style.background;
+  element.style.background = '#ffffff'; // PDFの背景を白に固定
+
+  try {
+    const canvas = await html2canvas(element, { 
+      scale: 2, // 高画質化
+      useCORS: true,
+      backgroundColor: '#ffffff'
+    });
+    
+    const imgData = canvas.toDataURL('image/jpeg', 1.0);
+    const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
+    
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+    
+    // ページ分割処理
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    let heightLeft = pdfHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight);
+    heightLeft -= pageHeight;
+
+    while (heightLeft >= 0) {
+      position = heightLeft - pdfHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight);
+      heightLeft -= pageHeight;
+    }
+
+    pdf.save('遺言書みっけ_診断結果レポート.pdf');
+  } catch (err) {
+    console.error(err);
+    alert('PDFの作成中にエラーが発生しました。');
+  } finally {
+    // 表示を元に戻す
+    noPrints.forEach(el => el.style.display = '');
+    printShows.forEach(el => el.style.display = '');
+    element.style.background = originalBg;
+  }
 }
 </script>
 </body>
