@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>遺言書みっけ｜あなたの想い、ご家族に確実に届けるために</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --spc-blue: #225AD3; --spc-light: #0179E8; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', sans-serif;
+      background: #f7f4ef;
+      color: #2d2d2d;
+      min-height: 100vh;
+    }
+    .serif { font-family: 'Noto Serif JP', 'Hiragino Mincho ProN', serif; }
+    .grad { background: linear-gradient(135deg, #225AD3 0%, #0179E8 100%); }
+    .grad-gold { background: linear-gradient(135deg, #b07d10 0%, #daa520 100%); }
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+      padding: 24px;
+    }
+    .btn-main {
+      display: inline-block;
+      background: linear-gradient(135deg, #225AD3, #0179E8);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      padding: 15px 40px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(34,90,211,0.38);
+      transition: transform .2s, box-shadow .2s;
+      font-family: 'Noto Sans JP', sans-serif;
+      text-decoration: none;
+    }
+    .btn-main:hover { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(34,90,211,0.45); }
+    .btn-sub {
+      display: inline-block;
+      background: #fff;
+      color: #225AD3;
+      border: 2px solid #225AD3;
+      border-radius: 50px;
+      padding: 13px 36px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .2s;
+      font-family: 'Noto Sans JP', sans-serif;
+    }
+    .btn-sub:hover { background: #f0f4ff; }
+    .btn-gold {
+      display: inline-block;
+      background: linear-gradient(135deg, #b07d10, #daa520);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      padding: 15px 40px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(176,125,16,0.38);
+      transition: transform .2s;
+      font-family: 'Noto Sans JP', sans-serif;
+      text-decoration: none;
+    }
+    .btn-gold:hover { transform: translateY(-2px); }
+    .progress-wrap { height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #225AD3, #0179E8); border-radius: 4px; transition: width .4s ease; }
+    .opt-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 14px 20px;
+      background: #fff;
+      font-size: 15px;
+      font-family: 'Noto Sans JP', sans-serif;
+      color: #333;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+      margin-bottom: 10px;
+    }
+    .opt-btn:hover { border-color: #225AD3; background: #f0f5ff; }
+    .opt-btn.chosen { border-color: #225AD3; background: #e8f0fe; color: #225AD3; font-weight: 700; }
+    .badge { display: inline-block; padding: 6px 22px; border-radius: 50px; font-size: 13px; font-weight: 700; }
+    .badge-a { background: #fee2e2; color: #dc2626; }
+    .badge-b { background: #fef3c7; color: #b45309; }
+    .badge-c { background: #d1fae5; color: #047857; }
+    .badge-d { background: #dbeafe; color: #1e40af; }
+    .issue-line { border-left: 4px solid #225AD3; background: #f0f5ff; border-radius: 0 10px 10px 0; padding: 12px 16px; margin-bottom: 10px; }
+    .will-box { font-family: 'Noto Serif JP', serif; line-height: 2.1; font-size: 14px; background: #fffef8; border: 1px solid #e0d9c8; border-radius: 12px; padding: 22px; white-space: pre-line; }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .modal { background: #fff; border-radius: 20px; padding: 30px; max-width: 420px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,.28); }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(18px);} to { opacity:1; transform:translateY(0);} }
+    .fade-up { animation: fadeUp .45s ease forwards; }
+    @media print {
+      body { background: #fff; }
+      .no-print { display: none !important; }
+      .print-show { display: block !important; }
+      .screen { display: none !important; }
+      #screen-premium { display: block !important; }
+      .card { box-shadow: none !important; border: 1px solid #ddd; }
+      header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+    .print-show { display: none; }
+  </style>
+</head>
+<body>
+
+<!-- ========== TOP ========== -->
+<div id="screen-top" class="screen active">
+  <header class="grad text-white">
+    <div class="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl">📜</span>
+        <span class="serif font-bold text-xl">遺言書みっけ</span>
+      </div>
+      <span id="hdr-firm" class="text-sm opacity-80"></span>
+    </div>
+  </header>
+
+  <div class="grad text-white text-center px-4 pt-14 pb-16">
+    <div class="max-w-xl mx-auto">
+      <p class="text-xs tracking-widest opacity-70 mb-3 uppercase">Yuigon Mikke</p>
+      <h1 class="serif text-3xl md:text-4xl font-bold leading-tight mb-4">遺言書みっけ</h1>
+      <p class="text-lg opacity-90 leading-relaxed mb-2">あなたの想い、ご家族に<br>確実に届けるために</p>
+      <p class="text-sm opacity-65 mb-8">12の質問で、あなたに必要な遺言書準備がわかります</p>
+      <button onclick="startQuiz()" class="btn-main text-lg">📝 診断スタート（無料）</button>
+      <p class="text-xs opacity-55 mt-3">所要時間：約3〜5分</p>
+    </div>
+  </div>
+
+  <div class="max-w-2xl mx-auto px-4 py-10">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <div class="card text-center">
+        <div class="text-3xl mb-3">🎯</div>
+        <h3 class="font-bold mb-1 text-gray-800">必要度を判定</h3>
+        <p class="text-sm text-gray-500">4段階で遺言書の必要度をわかりやすく判定</p>
+      </div>
+      <div class="card text-center">
+        <div class="text-3xl mb-3">⚠️</div>
+        <h3 class="font-bold mb-1 text-gray-800">課題を明確化</h3>
+        <p class="text-sm text-gray-500">あなたのケースで特に注意すべき点をピックアップ</p>
+      </div>
+      <div class="card text-center">
+        <div class="text-3xl mb-3">📄</div>
+        <h3 class="font-bold mb-1 text-gray-800">下書きを生成</h3>
+        <p class="text-sm text-gray-500">診断結果に基づいた遺言書の下書きを自動作成</p>
+      </div>
+    </div>
+    <div class="card" style="background:#eff6ff; border:1px solid #bfdbfe;">
+      <p class="text-xs text-blue-700 leading-relaxed text-center">
+        ⚠️ 本ツールは参考情報の提供を目的とするものです。法的に有効な遺言書の作成には、税理士・弁護士等の専門家にご相談ください。
+      </p>
+    </div>
+  </div>
+
+  <footer class="text-center text-xs text-gray-400 py-6 border-t border-gray-100">
+    <p id="ftr-firm" class="text-gray-600 font-medium mb-1"></p>
+    <p>© 2026 Smart Solutions / SPC</p>
+  </footer>
+</div>
+
+<!-- ========== QUIZ ========== -->
+<div id="screen-quiz" class="screen">
+  <header class="grad text-white">
+    <div class="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
+      <span class="serif font-bold">遺言書みっけ</span>
+      <span class="text-sm opacity-65">診断中</span>
+    </div>
+  </header>
+  <div class="max-w-2xl mx-auto px-4 py-6">
+    <div class="mb-5">
+      <div class="flex justify-between text-sm text-gray-500 mb-2">
+        <span id="q-label">質問 1 / 12</span>
+        <span id="q-pct">0%</span>
+      </div>
+      <div class="progress-wrap"><div id="q-bar" class="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div id="quiz-card" class="card fade-up">
+      <div class="flex items-start gap-3 mb-5">
+        <div id="q-num" class="grad text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">1</div>
+        <p id="q-text" class="serif text-lg font-medium text-gray-800 leading-relaxed"></p>
+      </div>
+      <div id="q-opts"></div>
+      <div class="mt-4 flex gap-3">
+        <button id="btn-prev" onclick="goPrev()" class="btn-sub text-sm py-2 px-5 hidden">← 戻る</button>
+        <button id="btn-next" onclick="goNext()" class="btn-main flex-1 text-base" disabled>次へ →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== RESULT (FREE) ========== -->
+<div id="screen-result" class="screen">
+  <header class="grad text-white">
+    <div class="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
+      <span class="serif font-bold">遺言書みっけ</span>
+      <span class="text-sm opacity-65">診断結果</span>
+    </div>
+  </header>
+  <div class="max-w-2xl mx-auto px-4 py-6 space-y-4">
+    <div class="card text-center fade-up">
+      <p class="text-sm text-gray-400 mb-2">あなたの遺言書必要度</p>
+      <div id="r-badge" class="badge mb-3"></div>
+      <h2 id="r-title" class="serif text-xl font-bold text-gray-800 mb-3"></h2>
+      <p id="r-desc" class="text-sm text-gray-600 leading-relaxed"></p>
+    </div>
+
+    <div class="card fade-up">
+      <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2"><span class="text-blue-600">⚠️</span>あなたのケースで特に注意すべき点</h3>
+      <div id="r-issues"></div>
+    </div>
+
+    <div class="card fade-up">
+      <h3 class="font-bold text-gray-800 mb-3">✅ 次の一歩</h3>
+      <div id="r-steps"></div>
+    </div>
+
+    <div class="card fade-up" style="background:linear-gradient(135deg,#fffbeb,#fff7ed); border:1px solid #fcd34d;">
+      <h3 class="serif text-lg font-bold text-gray-800 text-center mb-2">📄 遺言書の下書きを今すぐ確認</h3>
+      <p class="text-sm text-gray-600 text-center mb-4 leading-relaxed">
+        診断結果をもとに<strong>あなた専用の遺言書下書き</strong>と<br>
+        <strong>相続税ざっくり試算</strong>をご確認いただけます
+      </p>
+      <ul class="text-sm text-gray-700 space-y-1.5 mb-5 max-w-xs mx-auto">
+        <li class="flex items-center gap-2"><span class="text-green-500">✓</span>自筆証書遺言の下書き（あなた専用）</li>
+        <li class="flex items-center gap-2"><span class="text-green-500">✓</span>相続税ざっくり試算</li>
+        <li class="flex items-center gap-2"><span class="text-green-500">✓</span>PDF保存（事務所名入り）</li>
+        <li class="flex items-center gap-2"><span class="text-green-500">✓</span>準備チェックリスト</li>
+      </ul>
+      <div class="text-center">
+        <button onclick="openPremGate()" class="btn-gold">🔓 詳細結果＋下書きを確認する</button>
+        <p class="text-xs text-gray-400 mt-2">※すでにアクセスコードをお持ちの方はそのまま入力できます</p>
+      </div>
+    </div>
+
+    <div class="text-center pb-4">
+      <button onclick="showScreen('screen-top')" class="text-sm text-gray-400 underline">トップに戻る</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PREMIUM ========== -->
+<div id="screen-premium" class="screen">
+  <header class="grad text-white no-print">
+    <div class="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
+      <span class="serif font-bold">遺言書みっけ</span>
+      <span class="text-sm opacity-65">詳細結果</span>
+    </div>
+  </header>
+
+  <!-- Print header -->
+  <div class="print-show" style="text-align:center;padding:24px 24px 16px;border-bottom:2px solid #225AD3;">
+    <h1 style="font-size:22px;color:#225AD3;font-family:'Noto Serif JP',serif;margin-bottom:6px;">遺言書みっけ ｜ 診断結果レポート</h1>
+    <p id="prt-firm" style="font-size:13px;color:#666;"></p>
+    <p id="prt-date" style="font-size:12px;color:#999;margin-top:4px;"></p>
+  </div>
+
+  <div class="max-w-2xl mx-auto px-4 py-6 space-y-4">
+    <div class="card text-center" style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fcd34d;">
+      <p class="text-xs text-amber-700 font-medium mb-1">✨ プレミアムコンテンツ</p>
+      <p id="p-firm-sub" class="text-sm text-gray-600"></p>
+    </div>
+
+    <div class="card">
+      <p class="text-xs text-gray-400 mb-1">診断タイプ</p>
+      <div id="p-badge" class="badge mb-2"></div>
+      <h2 id="p-title" class="serif text-xl font-bold text-gray-800 mb-2"></h2>
+      <p id="p-detail" class="text-sm text-gray-600 leading-relaxed"></p>
+    </div>
+
+    <div class="card">
+      <h3 class="serif font-bold text-gray-800 mb-1 flex items-center gap-2">📄 遺言書下書き（自筆証書遺言）</h3>
+      <p class="text-xs text-gray-400 mb-4">※参考用の下書きです。法的有効性は専門家にご確認ください。</p>
+      <div id="p-will" class="will-box"></div>
+    </div>
+
+    <div class="card">
+      <h3 class="font-bold text-gray-800 mb-3">💴 相続税ざっくり試算</h3>
+      <div id="p-tax"></div>
+      <p class="text-xs text-gray-400 mt-3">※簡易試算です。正確な税額は税理士にご確認ください。</p>
+    </div>
+
+    <div class="card">
+      <h3 class="font-bold text-gray-800 mb-3">✅ 今後の準備チェックリスト</h3>
+      <div id="p-checklist"></div>
+    </div>
+
+    <div class="card no-print" style="background:#225AD3;color:#fff;text-align:center;">
+      <p class="text-sm opacity-85 mb-1">より正確な遺言書作成・相続税対策のご相談は</p>
+      <p id="p-firm-cta" class="font-bold text-lg mb-2"></p>
+      <p class="text-xs opacity-70">ご相談はお気軽にどうぞ</p>
+    </div>
+
+    <div class="text-center space-y-3 pb-6 no-print">
+      <button onclick="window.print()" class="btn-main w-full max-w-sm">🖨️ PDFで保存する</button>
+      <br>
+      <button onclick="showScreen('screen-result')" class="btn-sub">← 診断結果に戻る</button>
+    </div>
+
+    <!-- Print CTA (print only) -->
+    <div class="print-show" style="margin-top:24px;padding:16px;border:1px solid #225AD3;border-radius:12px;text-align:center;">
+      <p style="font-size:13px;color:#225AD3;font-weight:700;" id="prt-firm-cta"></p>
+      <p style="font-size:12px;color:#666;margin-top:4px;">遺言書作成・相続税対策のご相談はお気軽にどうぞ</p>
+    </div>
+  </div>
+</div>
+
+<!-- ========== MODAL: PASSWORD ========== -->
+<div id="modal-pw" class="overlay" style="display:none;">
+  <div class="modal">
+    <button onclick="closeModal('modal-pw')" class="float-right text-gray-300 text-xl leading-none">&times;</button>
+    <div class="clear-both mb-2"></div>
+    <h3 class="serif text-xl font-bold text-center mb-1">詳細結果を確認する</h3>
+    <p class="text-sm text-gray-500 text-center mb-5">アクセスコードをお持ちの方</p>
+    <input type="password" id="pw-input" placeholder="アクセスコードを入力"
+      class="w-full border border-gray-300 rounded-xl px-4 py-3 text-center text-lg tracking-widest mb-2 focus:outline-none focus:border-blue-500"
+      onkeypress="if(event.key==='Enter')checkPw()">
+    <p id="pw-err" class="text-red-500 text-xs text-center mb-3 hidden">コードが違います。もう一度お試しください。</p>
+    <button onclick="checkPw()" class="btn-main w-full mb-5">🔓 確認する</button>
+    <hr class="border-gray-200 mb-4">
+    <p class="text-center text-sm text-gray-500 mb-3">アクセスコードをお持ちでない方</p>
+    <a href="STRIPE_URL_HERE" target="_blank" class="btn-gold w-full text-center block py-4">
+      💳 購入してアクセスコードを取得
+    </a>
+    <p class="text-xs text-gray-400 text-center mt-2">決済後、メールでアクセスコードをお送りします</p>
+  </div>
+</div>
+
+<!-- ========== MODAL: LIMIT ========== -->
+<div id="modal-limit" class="overlay" style="display:none;">
+  <div class="modal">
+    <h3 class="serif text-xl font-bold text-center mb-2">無料診断の上限に達しました</h3>
+    <p class="text-sm text-gray-600 text-center mb-4 leading-relaxed">
+      無料版での診断は3回までです。<br>引き続きご利用にはプレミアムプランをどうぞ。
+    </p>
+    <div class="rounded-xl p-4 mb-4" style="background:#eff6ff;">
+      <p class="text-sm font-bold text-gray-800 mb-2">プレミアムプランでできること</p>
+      <ul class="text-sm text-gray-700 space-y-1">
+        <li>✓ 診断回数無制限</li>
+        <li>✓ 遺言書下書き生成</li>
+        <li>✓ 相続税ざっくり試算</li>
+        <li>✓ PDF保存（事務所名入り）</li>
+      </ul>
+    </div>
+    <a href="STRIPE_URL_HERE" target="_blank" class="btn-gold w-full block text-center py-4 mb-3">
+      💳 プレミアムプランに申し込む
+    </a>
+    <button onclick="closeModal('modal-limit')" class="w-full text-sm text-gray-400 py-2">閉じる</button>
+  </div>
+</div>
+
+<script>
+// ========== CONFIG ==========
+const PW       = 'YUIGON2026';
+const FREE_MAX = 3;
+
+// ========== STATE ==========
+const S = {
+  q: 0,
+  ans: {},
+  sel: null,
+  score: 0,
+  type: '',
+  firm: '',
+  premium: false,
+  uses: 0
+};
+
+// ========== QUESTIONS ==========
+const QS = [
+  { id:'q1',  icon:'👫', text:'配偶者（ご結婚されているパートナー）はいらっしゃいますか？', opts:['はい','いいえ'] },
+  { id:'q2',  icon:'👨‍👩‍👧', text:'お子様はいらっしゃいますか？', opts:['はい（1人）','はい（2人以上）','いいえ'] },
+  { id:'q3',  icon:'🏠', text:'不動産（土地・建物・マンション等）を所有していますか？', opts:['はい（複数）','はい（1件）','いいえ'] },
+  { id:'q4',  icon:'🏢', text:'ご自身が経営する会社の株式（自社株）をお持ちですか？', opts:['はい','いいえ','会社は経営していない'] },
+  { id:'q5',  icon:'💳', text:'借入金・ローン・連帯保証などがありますか？', opts:['はい（多い）','はい（少し）','いいえ'] },
+  { id:'q6',  icon:'💍', text:'前の婚姻歴がある、または他の方との間にお子様はいますか？', opts:['はい','いいえ'] },
+  { id:'q7',  icon:'🤲', text:'介護・看病など、特にお世話になった方（家族以外も含む）はいますか？', opts:['はい','いいえ'] },
+  { id:'q8',  icon:'💝', text:'特定の方に多めに財産を渡したいというお気持ちはありますか？', opts:['はい','いいえ'] },
+  { id:'q9',  icon:'🌏', text:'社会貢献・寄付・特定の団体への遺贈などをご希望ですか？', opts:['はい','いいえ','まだわからない'] },
+  { id:'q10', icon:'📜', text:'現在、遺言書（公正証書・自筆証書など）はすでにお持ちですか？', opts:['はい（最近作成）','はい（かなり前）','いいえ'] },
+  { id:'q11', icon:'😟', text:'相続について、ご家族間で揉める可能性や不安はありますか？', opts:['かなり不安','少し不安','あまりない'] },
+  { id:'q12', icon:'🔄', text:'事業承継（会社・店・農地など）の方針は決まっていますか？', opts:['決まっている','まだ決まっていない','事業はない'] }
+];
+
+// ========== INIT ==========
+window.addEventListener('DOMContentLoaded', () => {
+  const p = new URLSearchParams(location.search);
+  S.firm    = p.get('firm') || '';
+  S.premium = localStorage.getItem('ym_prem') === '1';
+  S.uses    = parseInt(localStorage.getItem('ym_uses') || '0', 10);
+  if (S.firm) {
+    document.getElementById('hdr-firm').textContent = S.firm;
+    document.getElementById('ftr-firm').textContent = S.firm;
+  }
+});
+
+// ========== NAV ==========
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+// ========== QUIZ ==========
+function startQuiz() {
+  if (!S.premium && S.uses >= FREE_MAX) {
+    document.getElementById('modal-limit').style.display = 'flex';
+    return;
+  }
+  S.q = 0; S.ans = {}; S.sel = null;
+  showScreen('screen-quiz');
+  renderQ();
+}
+
+function renderQ() {
+  const q   = QS[S.q];
+  const tot = QS.length;
+  const pct = Math.round((S.q / tot) * 100);
+  document.getElementById('q-label').textContent = `質問 ${S.q + 1} / ${tot}`;
+  document.getElementById('q-pct').textContent   = `${pct}%`;
+  document.getElementById('q-bar').style.width   = `${pct}%`;
+  document.getElementById('q-num').textContent   = S.q + 1;
+  document.getElementById('q-text').textContent  = `${q.icon} ${q.text}`;
+  S.sel = S.ans[q.id] !== undefined ? S.ans[q.id] : null;
+  const opts = document.getElementById('q-opts');
+  opts.innerHTML = '';
+  q.opts.forEach((o, i) => {
+    const b = document.createElement('button');
+    b.className = 'opt-btn' + (S.sel === i ? ' chosen' : '');
+    b.textContent = o;
+    b.onclick = () => pick(i);
+    opts.appendChild(b);
+  });
+  const nb = document.getElementById('btn-next');
+  nb.disabled = S.sel === null;
+  nb.textContent = S.q === tot - 1 ? '診断結果を見る ✓' : '次へ →';
+  const pb = document.getElementById('btn-prev');
+  pb.classList.toggle('hidden', S.q === 0);
+  const card = document.getElementById('quiz-card');
+  card.classList.remove('fade-up'); void card.offsetWidth; card.classList.add('fade-up');
+}
+
+function pick(i) {
+  S.sel = i;
+  S.ans[QS[S.q].id] = i;
+  document.querySelectorAll('.opt-btn').forEach((b, j) => b.classList.toggle('chosen', j === i));
+  document.getElementById('btn-next').disabled = false;
+}
+function goNext() { S.sel === null ? null : (S.q < QS.length - 1 ? (S.q++, renderQ()) : finish()); }
+function goPrev() { if (S.q > 0) { S.q--; renderQ(); } }
+
+// ========== SCORING ==========
+function calcScore() {
+  const a = S.ans;
+  let s = 0;
+  if (a.q1 === 1) s += 1;                       // no spouse
+  if (a.q2 === 0) s += 1; if (a.q2 === 1) s += 2;  // 1 child, 2+ children
+  if (a.q3 === 0) s += 3; if (a.q3 === 1) s += 2;  // real estate
+  if (a.q4 === 0) s += 3;                        // company stock
+  if (a.q5 === 0) s += 2; if (a.q5 === 1) s += 1;  // debt
+  if (a.q6 === 0) s += 3;                        // prev marriage
+  if (a.q7 === 0) s += 2;                        // carer
+  if (a.q8 === 0) s += 2;                        // specific wish
+  if (a.q10 === 0) s -= 3; if (a.q10 === 1) s -= 1; // existing will
+  if (a.q11 === 0) s += 3; if (a.q11 === 1) s += 1; // dispute risk
+  if (a.q12 === 1) s += 2;                       // succession undecided
+  return Math.max(0, s);
+}
+function typeOf(sc) { return sc >= 10 ? 'A' : sc >= 6 ? 'B' : sc >= 3 ? 'C' : 'D'; }
+
+// ========== RESULT DATA ==========
+const RD = {
+  A: {
+    badge:'タイプA：今すぐ作成を', cls:'badge-a',
+    title:'遺言書は今すぐ作成すべきです',
+    desc:'複数のリスク要因が重なっています。遺言書がなければご家族が大変な思いをする可能性が高い状態です。早急に専門家にご相談ください。',
+    detail:'不動産・事業・家族関係が絡み合うほど遺言書の重要性は増します。自筆証書遺言でも効力はありますが、公正証書遺言を強くお勧めします。'
+  },
+  B: {
+    badge:'タイプB：早めの準備を', cls:'badge-b',
+    title:'早めの準備をお勧めします',
+    desc:'遺言書が必要となる可能性が高い状況です。今すぐ緊急ではないかもしれませんが、早めに専門家に相談して準備を始めることをお勧めします。',
+    detail:'いくつかの要注意ポイントが確認されました。今は元気でも、いざというときに家族が困らないよう早めに動きましょう。まず下書きを作り、専門家に確認してもらうのが最短ルートです。'
+  },
+  C: {
+    badge:'タイプC：時期を見て準備', cls:'badge-c',
+    title:'時期を見て準備することをお勧めします',
+    desc:'現時点でのリスクは比較的低い状況です。ただし「書いてよかった」という声は皆さん口を揃えておっしゃいます。来年中を目途に準備を始めてみてはいかがでしょうか。',
+    detail:'大きなリスク要因は少ないものの、遺言書は早い段階で準備しておくことが家族への思いやりになります。エンディングノートと並行して進めましょう。'
+  },
+  D: {
+    badge:'タイプD：エンディングノートから', cls:'badge-d',
+    title:'まずエンディングノートから始めましょう',
+    desc:'現時点では遺言書の緊急性は低い状況です。まずはエンディングノートで自分の希望や家族へのメッセージを書き留めることから始めてみてはいかがでしょうか。',
+    detail:'現在のお状況では複雑な相続リスクは少ない状態です。まずエンディングノートで大切な情報を整理し、数年後に改めて遺言書を検討されることをお勧めします。'
+  }
+};
+
+function getIssues() {
+  const a = S.ans; const list = [];
+  if (a.q3 === 0 || a.q3 === 1) list.push({i:'🏠', t:'不動産の分割問題', d:'不動産は現金と違い分けにくいため、遺言で明確に指定しておくことが重要です。'});
+  if (a.q4 === 0) list.push({i:'🏢', t:'事業承継・自社株の問題', d:'自社株を誰に引き継ぐかが不明確だと、会社の経営が混乱する恐れがあります。'});
+  if (a.q6 === 0) list.push({i:'⚠️', t:'前婚の子・認知されていない相続人', d:'前婚のお子様は法定相続人です。遺言書がないと複雑な手続きが必要になります。'});
+  if (a.q5 === 0) list.push({i:'💳', t:'負債・連帯保証の承継リスク', d:'借入金や連帯保証は相続の対象になります。相続人が知らずに引き継ぐリスクがあります。'});
+  if (a.q11 === 0 || a.q11 === 1) list.push({i:'😟', t:'相続トラブルのリスク', d:'相続争いは遺言書があれば大幅に減らせます。争いになると弁護士費用だけで数百万になるケースも。'});
+  if (a.q7 === 0) list.push({i:'🤲', t:'貢献してくれた方への感謝を形に', d:'お世話になった方への遺贈は、遺言書でのみ確実に実現できます。'});
+  if (a.q8 === 0) list.push({i:'💝', t:'特定の方への配分希望', d:'法定相続分と異なる分配は、遺言書でのみ有効に指定できます。'});
+  if (a.q12 === 1) list.push({i:'🔄', t:'事業承継方針が未決定', d:'後継者が決まっていないと、相続時に会社経営に支障をきたす恐れがあります。'});
+  if (a.q10 === 1) list.push({i:'📜', t:'古い遺言書の更新が必要', d:'かなり前に作成した遺言書は、現在の家族構成・財産状況と合っていない可能性があります。'});
+  return list.slice(0, 4);
+}
+
+function getSteps(t) {
+  return {
+    A:[{i:'📞',t:'今週中に税理士・弁護士に相談のアポを取る'},{i:'📋',t:'財産目録（不動産・預金・株式の一覧）を作成する'},{i:'✍️',t:'家族への想いをメモ書きでまとめておく'}],
+    B:[{i:'📅',t:'3ヶ月以内に専門家に相談する'},{i:'📋',t:'財産の棚卸し（何がどこにあるか）をメモする'},{i:'📖',t:'エンディングノートと並行して進める'}],
+    C:[{i:'📖',t:'まずエンディングノートを書いてみる'},{i:'📅',t:'来年中を目途に専門家に相談する'},{i:'👨‍👩‍👧',t:'家族で相続について話し合う機会を設ける'}],
+    D:[{i:'📖',t:'エンディングノートで大切な情報を整理する'},{i:'👨‍👩‍👧',t:'家族に預金口座・保険の場所を伝えておく'},{i:'📅',t:'3〜5年後に改めて見直す予定を立てる'}]
+  }[t];
+}
+
+// ========== WILL DRAFT ==========
+function makeWill() {
+  const a = S.ans;
+  const dt = new Date();
+  const ds = `${dt.getFullYear()}年${dt.getMonth()+1}月${dt.getDate()}日`;
+  let w = `自筆証書遺言\n\n━━━━━━━━━━━━━━━━━\n　　遺　言　書\n━━━━━━━━━━━━━━━━━\n\n私【氏名】は、以下のとおり遺言する。\n\n`;
+  let art = 1;
+  if (a.q3 === 0 || a.q3 === 1) {
+    w += `第${art++}条（不動産について）\n　私が所有する不動産（土地・建物）については、\n　【相続人氏名】に相続させる。\n　所在地・地番等の詳細は財産目録のとおり。\n\n`;
+  }
+  if (a.q4 === 0) {
+    w += `第${art++}条（事業承継・自社株について）\n　私が保有する【会社名】の株式すべてを、\n　後継者【後継者氏名】に相続させる。\n　なお、会社の経営は【後継者氏名】が引き継ぐことを強く希望する。\n\n`;
+  }
+  if (a.q1 === 0) {
+    w += `第${art++}条（配偶者について）\n　配偶者【配偶者氏名】に対し、以下を相続させる。\n　・預貯金の　　　割\n　・居住用不動産（自宅）\n　配偶者の生活が安定するよう、十分な財産を確保すること。\n\n`;
+  }
+  if (a.q7 === 0) {
+    w += `第${art++}条（特別の貢献をしてくださった方への感謝）\n　長年にわたりお世話になった【氏名・関係】に対し、\n　感謝の気持ちとして金【　　　】万円を遺贈する。\n\n`;
+  }
+  if (a.q8 === 0) {
+    w += `第${art++}条（特定の相続人への配慮）\n　【相続人氏名】には、特に多くの財産を相続させることを希望する。\n　理由：【理由を記載してください】\n\n`;
+  }
+  if (a.q9 === 0) {
+    w += `第${art++}条（遺贈・寄付について）\n　【団体名・用途】に対し、遺産の一部（金【　　　】万円）を寄付する。\n\n`;
+  }
+  w += `第${art++}条（遺言執行者）\n　この遺言の執行者として、【遺言執行者氏名】を指定する。\n\n`;
+  w += `第${art++}条（付言事項）\n　家族へのメッセージ：\n　【ここに家族へのメッセージをお書きください】\n\n　皆が仲良く、助け合って生きていくことを願っています。\n\n`;
+  w += `━━━━━━━━━━━━━━━━━\n　　${ds}\n\n　住所：【住所】\n\n　氏名：【氏名】（署名）\n━━━━━━━━━━━━━━━━━\n\n※【　】内は実際の情報に書き換えてください\n※この下書きをもとに、必ず専門家にご確認ください`;
+  return w;
+}
+
+// ========== TAX ESTIMATE ==========
+function makeTax() {
+  const a = S.ans;
+  const hasSpouse = a.q1 === 0;
+  const kids = a.q2 === 0 ? 1 : (a.q2 === 1 ? 2 : 0);
+  const heirs = (hasSpouse ? 1 : 0) + kids;
+  const ded = 3000 + 600 * heirs;
+  let h = `<div style="background:#eff6ff;border-radius:12px;padding:16px;margin-bottom:12px;">
+    <p style="font-weight:700;color:#1e40af;margin-bottom:6px;">📊 基礎控除額の目安</p>
+    <p style="font-size:24px;font-weight:900;color:#1d4ed8;">${ded.toLocaleString()}万円</p>
+    <p style="font-size:11px;color:#6b7280;margin-top:4px;">= 3,000万円 ＋ 600万円 × ${heirs}人（法定相続人）</p>
+  </div><div style="font-size:13px;line-height:2;color:#374151;">`;
+  h += `<p>💡 <strong>課税対象</strong>：基礎控除額を超える遺産に相続税が課税されます</p>`;
+  if (a.q3 !== 2) h += `<p>🏠 <strong>不動産</strong>：小規模宅地等の特例で最大80%評価減の可能性</p>`;
+  if (a.q4 === 0) h += `<p>🏢 <strong>自社株</strong>：事業承継税制（特例）を使えば相続税が猶予・免除になる場合も</p>`;
+  if (hasSpouse) h += `<p>👫 <strong>配偶者の税額軽減</strong>：1億6,000万円または法定相続分まで非課税</p>`;
+  h += `</div><div style="margin-top:12px;padding:12px;background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;">
+    <p style="font-size:12px;color:#b45309;font-weight:700;">⚠️ 正確な試算のために</p>
+    <p style="font-size:12px;color:#92400e;margin-top:4px;">財産の詳細（不動産の評価額・預金・株式など）をもとに、税理士に相談することで節税対策を含めた正確なシミュレーションができます。</p>
+  </div>`;
+  return h;
+}
+
+// ========== CHECKLIST ==========
+function makeChecklist() {
+  const a = S.ans;
+  const items = [
+    {t:'財産目録を作成する（不動産・預金・株式・保険）', done:false},
+    {t:'通帳・権利証などの保管場所を家族に伝える', done:false},
+    {t:'遺言書の下書きを完成させる', done:false},
+    {t:'税理士・弁護士に相談する', done:false},
+  ];
+  if (a.q4 === 0) items.push({t:'事業承継計画を専門家と相談する', done:false});
+  if (a.q3 !== 2) items.push({t:'不動産の評価額を確認する（固定資産税評価証明書）', done:false});
+  if (a.q10 === 0) items.push({t:'既存の遺言書の内容を定期的に見直す', done:true});
+  if (a.q10 === 1) items.push({t:'古い遺言書を見直して更新する', done:false});
+  if (a.q9 === 0) items.push({t:'遺贈したい団体の口座情報を確認する', done:false});
+  return items.map(it => `
+    <label style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #f3f4f6;cursor:pointer;">
+      <input type="checkbox" ${it.done?'checked':''} style="margin-top:3px;width:16px;height:16px;accent-color:#225AD3;flex-shrink:0;">
+      <span style="font-size:13px;color:${it.done?'#9ca3af':'#374151'};${it.done?'text-decoration:line-through;':''}">${it.t}</span>
+    </label>`).join('');
+}
+
+// ========== FINISH QUIZ ==========
+function finish() {
+  S.uses++;
+  localStorage.setItem('ym_uses', S.uses);
+  S.score = calcScore();
+  S.type  = typeOf(S.score);
+  renderResult();
+  showScreen('screen-result');
+}
+
+function renderResult() {
+  const d = RD[S.type];
+  const rb = document.getElementById('r-badge');
+  rb.textContent = d.badge; rb.className = `badge ${d.cls}`;
+  document.getElementById('r-title').textContent = d.title;
+  document.getElementById('r-desc').textContent  = d.desc;
+  const iss = getIssues();
+  document.getElementById('r-issues').innerHTML = iss.length
+    ? iss.map(x=>`<div class="issue-line"><p class="font-bold text-gray-800 text-sm">${x.i} ${x.t}</p><p class="text-xs text-gray-600 mt-1 leading-relaxed">${x.d}</p></div>`).join('')
+    : '<p class="text-sm text-gray-400">特に大きなリスク要因は確認されませんでした。</p>';
+  document.getElementById('r-steps').innerHTML = getSteps(S.type).map(s=>`
+    <div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid #f3f4f6;">
+      <span style="font-size:20px;">${s.i}</span>
+      <p style="font-size:14px;color:#374151;line-height:1.6;">${s.t}</p>
+    </div>`).join('');
+}
+
+// ========== PREMIUM ==========
+function openPremGate() {
+  if (S.premium) { renderPremium(); showScreen('screen-premium'); return; }
+  document.getElementById('pw-input').value = '';
+  document.getElementById('pw-err').classList.add('hidden');
+  document.getElementById('modal-pw').style.display = 'flex';
+  setTimeout(() => document.getElementById('pw-input').focus(), 100);
+}
+function checkPw() {
+  const v = document.getElementById('pw-input').value.trim().toUpperCase();
+  if (v === PW) {
+    S.premium = true;
+    localStorage.setItem('ym_prem', '1');
+    closeModal('modal-pw');
+    renderPremium();
+    showScreen('screen-premium');
+  } else {
+    document.getElementById('pw-err').classList.remove('hidden');
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-input').focus();
+  }
+}
+function renderPremium() {
+  const d = RD[S.type];
+  const firm = S.firm || 'Smart Solutions / SPC';
+  const pb = document.getElementById('p-badge');
+  pb.textContent = d.badge; pb.className = `badge ${d.cls}`;
+  document.getElementById('p-title').textContent   = d.title;
+  document.getElementById('p-detail').textContent  = d.detail;
+  document.getElementById('p-firm-sub').textContent = S.firm ? `提供：${S.firm}` : '';
+  document.getElementById('p-firm-cta').textContent = firm;
+  document.getElementById('prt-firm').textContent   = firm;
+  document.getElementById('prt-firm-cta').textContent = firm;
+  document.getElementById('prt-date').textContent   = `作成日：${new Date().toLocaleDateString('ja-JP')}`;
+  document.getElementById('p-will').textContent     = makeWill();
+  document.getElementById('p-tax').innerHTML        = makeTax();
+  document.getElementById('p-checklist').innerHTML  = makeChecklist();
+}
+</script>
+</body>
+</html>
