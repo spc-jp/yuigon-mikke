@@ -126,6 +126,45 @@
       header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
     .print-show { display: none; }
+
+    /* ========== USAGE BANNER ========== */
+    .usage-banner {
+      text-align: center;
+      padding: 11px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      font-family: 'Noto Sans JP', sans-serif;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+      transition: background .25s ease;
+    }
+    .usage-banner.banner-fresh {
+      background: #fff7ed;
+      color: #b45309;
+    }
+    .usage-banner.banner-using {
+      background: #eff6ff;
+      color: #1e40af;
+    }
+    .usage-banner.banner-end {
+      background: linear-gradient(90deg, #fee2e2, #fecaca);
+      color: #991b1b;
+      cursor: pointer;
+      animation: bannerPulse 2.4s ease-in-out infinite;
+    }
+    .usage-banner.banner-end:hover { filter: brightness(0.97); }
+    .usage-banner.banner-pro {
+      background: linear-gradient(90deg, #b07d10, #daa520);
+      color: #fff;
+      letter-spacing: 0.05em;
+    }
+    @keyframes bannerPulse {
+      0%, 100% { box-shadow: inset 0 -2px 0 rgba(220,38,38,0); }
+      50%      { box-shadow: inset 0 -2px 0 rgba(220,38,38,0.35); }
+    }
+    @media (max-width: 480px) {
+      .usage-banner { font-size: 12px; padding: 9px 12px; }
+    }
   </style>
 </head>
 <body>
@@ -138,8 +177,14 @@
         <span class="text-2xl">📜</span>
         <span class="serif font-bold text-xl">遺言書みっけ</span>
       </div>
-      <span id="hdr-firm" class="text-sm opacity-90 font-medium"></span>
+      <div class="flex items-center gap-2">
+        <span id="pro-status-badge" style="display:none;background:linear-gradient(135deg,#b07d10,#daa520);color:#fff;padding:4px 12px;border-radius:50px;font-size:11px;font-weight:700;">🔓 Pro版</span>
+        <span id="hdr-firm" class="text-sm opacity-90 font-medium"></span>
+      </div>
     </header>
+
+    <!-- Usage banner (top) -->
+    <div id="banner-top" class="usage-banner banner-fresh"></div>
 
     <div class="text-center px-4 pt-8 pb-20">
       <div class="max-w-xl mx-auto">
@@ -192,6 +237,10 @@
       <span class="text-sm opacity-65">診断中</span>
     </div>
   </header>
+
+  <!-- Usage banner (quiz) -->
+  <div id="banner-quiz" class="usage-banner banner-fresh"></div>
+
   <div class="max-w-2xl mx-auto px-4 py-6">
     <div class="mb-5">
       <div class="flex justify-between text-sm text-gray-500 mb-2">
@@ -222,6 +271,10 @@
       <span class="text-sm opacity-65">診断結果</span>
     </div>
   </header>
+
+  <!-- Usage banner (result) -->
+  <div id="banner-result" class="usage-banner banner-fresh"></div>
+
   <div class="max-w-2xl mx-auto px-4 py-6 space-y-4">
     <div class="card text-center fade-up">
       <p class="text-sm text-gray-400 mb-2">あなたの遺言書必要度</p>
@@ -343,8 +396,17 @@ const S = {
   sel: null,
   score: 0,
   type: '',
-  firm: ''
+  firm: '',
+  usageCount: 0,
+  proUnlocked: false
 };
+
+// ========== CONFIG ==========
+const FREE_LIMIT   = 3;
+const PRO_PASSWORD = 'yuigon2026';
+const STRIPE_URL   = 'https://buy.stripe.com/fZu28qgXgdnvgtpaN6cV20L';
+const LS_USAGE     = 'yuigon_usage_count';
+const LS_UNLOCK    = 'yuigon_pro_unlocked';
 
 // ========== QUESTIONS ==========
 const QS = [
@@ -370,6 +432,7 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('hdr-firm').textContent = S.firm;
     document.getElementById('ftr-firm').textContent = S.firm;
   }
+  loadProState();
 });
 
 // ========== NAV ==========
@@ -581,9 +644,15 @@ function makeChecklist() {
 
 // ========== FINISH QUIZ ==========
 function finish() {
+  // 診断完了でカウント +1（Pro版未解放のみ）
+  if (!S.proUnlocked) {
+    S.usageCount++;
+    localStorage.setItem(LS_USAGE, String(S.usageCount));
+  }
   S.score = calcScore();
   S.type  = typeOf(S.score);
   renderResult();
+  updateUsageBanner();
   showScreen('screen-result');
 }
 
@@ -606,8 +675,20 @@ function renderResult() {
 
 // ========== PREMIUM ==========
 function openPremGate() {
-  renderPremium();
-  showScreen('screen-premium');
+  // Pro版解放済み：そのまま詳細画面へ
+  if (S.proUnlocked) {
+    renderPremium();
+    showScreen('screen-premium');
+    return;
+  }
+  // 無料体験回数内：詳細画面へ（カウント増加なし。診断完了時に既に +1 済み）
+  if (S.usageCount <= FREE_LIMIT) {
+    renderPremium();
+    showScreen('screen-premium');
+    return;
+  }
+  // 4回目以降：アップグレードモーダル
+  showUpgradeModal();
 }
 
 function renderPremium() {
@@ -666,6 +747,112 @@ function downloadWord() {
     alert('Wordファイルの作成中にエラーが発生しました。');
   });
 }
+
+// ========== PRO STATE / UPGRADE / UNLOCK ==========
+function loadProState() {
+  S.usageCount = parseInt(localStorage.getItem(LS_USAGE) || '0', 10);
+  S.proUnlocked = localStorage.getItem(LS_UNLOCK) === 'true';
+  updateProBadge();
+  updateUsageBanner();
+}
+
+// ========== USAGE BANNER ==========
+function updateUsageBanner() {
+  const ids = ['banner-top', 'banner-quiz', 'banner-result'];
+  let html, cls, clickable = false;
+
+  if (S.proUnlocked) {
+    html = '🔓 Pro版でご利用中　ありがとうございます';
+    cls  = 'banner-pro';
+  } else if (S.usageCount === 0) {
+    html = '🎁 今なら3回まで無料でお試しいただけます（登録不要）';
+    cls  = 'banner-fresh';
+  } else if (S.usageCount === 1) {
+    html = '🎁 無料体験 残り2回（全3回）';
+    cls  = 'banner-using';
+  } else if (S.usageCount === 2) {
+    html = '🎁 無料体験 残り1回（全3回）';
+    cls  = 'banner-using';
+  } else {
+    html = '⚠️ 無料体験が終了しました　ご購入はこちら →';
+    cls  = 'banner-end';
+    clickable = true;
+  }
+
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = html;
+    el.className = 'usage-banner ' + cls;
+    el.onclick = clickable ? showUpgradeModal : null;
+  });
+}
+
+function updateProBadge() {
+  const badge = document.getElementById('pro-status-badge');
+  if (!badge) return;
+  badge.style.display = S.proUnlocked ? 'inline-block' : 'none';
+}
+
+function showUpgradeModal() {
+  const remain = Math.max(0, FREE_LIMIT - S.usageCount);
+  document.getElementById('upg-usage').textContent = `無料お試し ${S.usageCount} / ${FREE_LIMIT} 回（残り${remain}回）`;
+  document.getElementById('upgrade-modal').style.display = 'flex';
+}
+function closeUpgradeModal() {
+  document.getElementById('upgrade-modal').style.display = 'none';
+}
+
+function goToStripe() {
+  window.open(STRIPE_URL, '_blank');
+}
+
+function showUnlockModal() {
+  closeUpgradeModal();
+  document.getElementById('pw-error').style.display = 'none';
+  document.getElementById('pw-input').value = '';
+  document.getElementById('unlock-modal').style.display = 'flex';
+  setTimeout(() => document.getElementById('pw-input').focus(), 80);
+}
+function closeUnlockModal() {
+  document.getElementById('unlock-modal').style.display = 'none';
+}
+
+function tryUnlock() {
+  const v = (document.getElementById('pw-input').value || '').trim();
+  if (v === PRO_PASSWORD) {
+    S.proUnlocked = true;
+    localStorage.setItem(LS_UNLOCK, 'true');
+    closeUnlockModal();
+    updateProBadge();
+    updateUsageBanner();
+    alert('✅ Pro版が有効になりました。\n詳細結果をお楽しみください。');
+    renderPremium();
+    showScreen('screen-premium');
+  } else {
+    document.getElementById('pw-error').style.display = 'block';
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-input').focus();
+  }
+}
+
+// Enter で送信
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && document.getElementById('unlock-modal').style.display === 'flex') {
+    tryUnlock();
+  }
+});
+
+// 動作確認用：URLに ?reset=1 を付けるとカウント＆解放状態をリセット
+(function maybeReset(){
+  const p = new URLSearchParams(location.search);
+  if (p.get('reset') === '1') {
+    localStorage.removeItem(LS_USAGE);
+    localStorage.removeItem(LS_UNLOCK);
+    alert('🔄 試用カウントとPro解放状態をリセットしました');
+    location.replace(location.pathname);
+  }
+})();
 
 // ========== PDF EXPORT ==========
 async function downloadPDF() {
@@ -726,5 +913,49 @@ async function downloadPDF() {
   }
 }
 </script>
+<!-- ========== UPGRADE MODAL (4回目以降表示) ========== -->
+<div id="upgrade-modal" class="overlay" style="display:none;">
+  <div class="modal" style="text-align:center;">
+    <div style="font-size:48px;margin-bottom:8px;">🔒</div>
+    <h3 class="serif" style="font-size:20px;font-weight:700;color:#1f2937;margin-bottom:8px;">無料お試しが終了しました</h3>
+    <p id="upg-usage" style="font-size:12px;color:#6b7280;margin-bottom:14px;">無料お試し 3 / 3 回</p>
+    <p style="font-size:14px;color:#374151;line-height:1.7;margin-bottom:18px;">
+      引き続き<strong>遺言書下書き</strong>・<strong>相続税ざっくり試算</strong>・<strong>PDF/Word保存</strong>をご利用いただくには、Pro版（買い切り 2,980円）のご購入をお願いいたします。
+    </p>
+
+    <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:12px;padding:14px;margin-bottom:18px;text-align:left;">
+      <p style="font-size:13px;font-weight:700;color:#b45309;margin-bottom:6px;">✨ Pro版でできること</p>
+      <ul style="font-size:13px;color:#374151;line-height:1.9;list-style:none;padding:0;">
+        <li>✅ 自筆証書遺言の下書き（あなた専用）</li>
+        <li>✅ 相続税ざっくり試算</li>
+        <li>✅ PDF / Word 形式で保存</li>
+        <li>✅ 準備チェックリスト</li>
+        <li>✅ 何度でも診断・出力OK</li>
+      </ul>
+    </div>
+
+    <button onclick="goToStripe()" class="btn-gold" style="width:100%;margin-bottom:10px;">💳 2,980円で購入する</button>
+    <button onclick="showUnlockModal()" class="btn-sub" style="width:100%;margin-bottom:8px;">🔑 すでにご購入の方（パスワード入力）</button>
+    <button onclick="closeUpgradeModal()" style="background:none;border:none;color:#9ca3af;font-size:13px;cursor:pointer;margin-top:6px;">閉じる</button>
+  </div>
+</div>
+
+<!-- ========== UNLOCK MODAL (パスワード入力) ========== -->
+<div id="unlock-modal" class="overlay" style="display:none;">
+  <div class="modal">
+    <div style="text-align:center;font-size:42px;margin-bottom:6px;">🔑</div>
+    <h3 class="serif" style="font-size:19px;font-weight:700;color:#1f2937;text-align:center;margin-bottom:6px;">パスワード入力</h3>
+    <p style="font-size:13px;color:#6b7280;text-align:center;margin-bottom:16px;line-height:1.6;">
+      ご購入時にお届けしたパスワードを入力してください。
+    </p>
+    <input id="pw-input" type="text" placeholder="パスワードを入力" autocomplete="off"
+           style="width:100%;padding:14px 16px;font-size:16px;border:2px solid #e5e7eb;border-radius:12px;outline:none;font-family:'Noto Sans JP',sans-serif;margin-bottom:8px;"
+           onfocus="this.style.borderColor='#225AD3';" onblur="this.style.borderColor='#e5e7eb';">
+    <p id="pw-error" style="display:none;color:#dc2626;font-size:12px;margin-bottom:10px;">⚠️ パスワードが違います。もう一度ご確認ください。</p>
+    <button onclick="tryUnlock()" class="btn-main" style="width:100%;margin-top:8px;">解除する</button>
+    <button onclick="closeUnlockModal()" style="background:none;border:none;color:#9ca3af;font-size:13px;cursor:pointer;width:100%;margin-top:10px;">閉じる</button>
+  </div>
+</div>
+
 </body>
 </html>
