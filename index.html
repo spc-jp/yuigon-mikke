@@ -158,6 +158,11 @@
       color: #fff;
       letter-spacing: 0.05em;
     }
+    .usage-banner.banner-lite {
+      background: linear-gradient(90deg, #047857, #10b981);
+      color: #fff;
+      letter-spacing: 0.04em;
+    }
     @keyframes bannerPulse {
       0%, 100% { box-shadow: inset 0 -2px 0 rgba(220,38,38,0); }
       50%      { box-shadow: inset 0 -2px 0 rgba(220,38,38,0.35); }
@@ -345,10 +350,10 @@
       <p id="p-detail" class="text-sm text-gray-600 leading-relaxed"></p>
     </div>
 
-    <div class="card relative">
+    <div id="p-will-card" class="card relative">
       <div class="flex flex-wrap gap-2 items-center justify-between mb-1">
         <h3 class="serif font-bold text-gray-800 flex items-center gap-2">📄 遺言書下書き（自筆証書遺言）</h3>
-        <button onclick="downloadWord()" class="btn-sub text-xs py-1.5 px-3 no-print flex items-center gap-1" style="border-width: 1px; padding: 6px 12px; font-size: 13px;">
+        <button id="p-word-btn" onclick="downloadWord()" class="btn-sub text-xs py-1.5 px-3 no-print flex items-center gap-1" style="border-width: 1px; padding: 6px 12px; font-size: 13px;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
           Wordで保存
         </button>
@@ -357,13 +362,23 @@
       <div id="p-will" class="will-box"></div>
     </div>
 
+    <!-- ライト版向け：下書きはPro版で見られる案内カード -->
+    <div id="p-will-lite-cta" class="card no-print" style="display:none;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fcd34d;">
+      <h3 class="serif font-bold text-gray-800 mb-2 flex items-center gap-2">📄 遺言書下書き（自筆証書遺言）</h3>
+      <p class="text-sm text-gray-700 leading-relaxed mb-3">
+        あなた専用の遺言書下書き全文と<strong>Word形式での保存</strong>は、<br>
+        <strong>Pro版（買い切り 2,980円）</strong>でご利用いただけます。
+      </p>
+      <button onclick="goToStripe()" class="btn-gold" style="width:100%;max-width:280px;display:block;margin:0 auto;">👑 Pro版にアップグレード</button>
+    </div>
+
     <div class="card">
       <h3 class="font-bold text-gray-800 mb-3">💴 相続税ざっくり試算</h3>
       <div id="p-tax"></div>
       <p class="text-xs text-gray-400 mt-3">※簡易試算です。正確な税額は税理士にご確認ください。</p>
     </div>
 
-    <div class="card">
+    <div id="p-checklist-card" class="card">
       <h3 class="font-bold text-gray-800 mb-3">✅ 今後の準備チェックリスト</h3>
       <div id="p-checklist"></div>
     </div>
@@ -398,15 +413,19 @@ const S = {
   type: '',
   firm: '',
   usageCount: 0,
+  liteUnlocked: false,
   proUnlocked: false
 };
 
 // ========== CONFIG ==========
-const FREE_LIMIT   = 3;
-const PRO_PASSWORD = 'yuigon2026';
-const STRIPE_URL   = 'https://buy.stripe.com/fZu28qgXgdnvgtpaN6cV20L';
-const LS_USAGE     = 'yuigon_usage_count';
-const LS_UNLOCK    = 'yuigon_pro_unlocked';
+const FREE_LIMIT     = 3;
+const LITE_PASSWORD  = 'yuigon980';
+const PRO_PASSWORD   = 'yuigon2026';
+const NOTE_URL       = '【リンク】';  // ★ ライト版のnote販売ページURLに差し替えてください
+const STRIPE_URL     = 'https://buy.stripe.com/fZu28qgXgdnvgtpaN6cV20L';
+const LS_USAGE       = 'yuigon_usage_count';
+const LS_LITE        = 'yuigon_lite_unlocked';
+const LS_UNLOCK      = 'yuigon_pro_unlocked';
 
 // ========== QUESTIONS ==========
 const QS = [
@@ -675,8 +694,9 @@ function renderResult() {
 
 // ========== PREMIUM ==========
 function openPremGate() {
-  // Pro版解放済み：そのまま詳細画面へ
-  if (S.proUnlocked) {
+  const plan = getActivePlan();
+  // Pro版またはライト版解放済み：そのまま詳細画面へ
+  if (plan === 'pro' || plan === 'lite') {
     renderPremium();
     showScreen('screen-premium');
     return;
@@ -706,6 +726,37 @@ function renderPremium() {
   document.getElementById('p-will').textContent     = makeWill();
   document.getElementById('p-tax').innerHTML        = makeTax();
   document.getElementById('p-checklist').innerHTML  = makeChecklist();
+
+  // ★ プラン別の表示制御
+  applyPlanVisibility();
+}
+
+// プラン別の表示制御（プレミアム画面）
+function applyPlanVisibility() {
+  const plan = getActivePlan();
+  const willCard      = document.getElementById('p-will-card');       // 下書き本体カード
+  const willLiteCta   = document.getElementById('p-will-lite-cta');   // ライト版用CTAカード
+  const checklistCard = document.getElementById('p-checklist-card'); // チェックリスト
+  const wordBtn       = document.getElementById('p-word-btn');        // Word出力ボタン
+
+  if (plan === 'pro') {
+    // Pro版：すべて表示
+    if (willCard)      willCard.style.display      = '';
+    if (willLiteCta)   willLiteCta.style.display   = 'none';
+    if (checklistCard) checklistCard.style.display = '';
+    if (wordBtn)       wordBtn.style.display       = '';
+  } else if (plan === 'lite') {
+    // ライト版：下書き本体・Wordボタン・チェックリストを非表示、CTAカード表示
+    if (willCard)      willCard.style.display      = 'none';
+    if (willLiteCta)   willLiteCta.style.display   = '';
+    if (checklistCard) checklistCard.style.display = 'none';
+  } else {
+    // 無料お試し：すべて見られる（4回目以降はモーダルで止まっているのでここには来ない）
+    if (willCard)      willCard.style.display      = '';
+    if (willLiteCta)   willLiteCta.style.display   = 'none';
+    if (checklistCard) checklistCard.style.display = '';
+    if (wordBtn)       wordBtn.style.display       = '';
+  }
 }
 
 // ========== WORD EXPORT ==========
@@ -750,20 +801,32 @@ function downloadWord() {
 
 // ========== PRO STATE / UPGRADE / UNLOCK ==========
 function loadProState() {
-  S.usageCount = parseInt(localStorage.getItem(LS_USAGE) || '0', 10);
-  S.proUnlocked = localStorage.getItem(LS_UNLOCK) === 'true';
+  S.usageCount   = parseInt(localStorage.getItem(LS_USAGE) || '0', 10);
+  S.liteUnlocked = localStorage.getItem(LS_LITE) === 'true';
+  S.proUnlocked  = localStorage.getItem(LS_UNLOCK) === 'true';
   updateProBadge();
   updateUsageBanner();
+}
+
+// プラン判定（'pro' / 'lite' / 'free'）
+function getActivePlan() {
+  if (S.proUnlocked)  return 'pro';
+  if (S.liteUnlocked) return 'lite';
+  return 'free';
 }
 
 // ========== USAGE BANNER ==========
 function updateUsageBanner() {
   const ids = ['banner-top', 'banner-quiz', 'banner-result'];
   let html, cls, clickable = false;
+  const plan = getActivePlan();
 
-  if (S.proUnlocked) {
+  if (plan === 'pro') {
     html = '🔓 Pro版でご利用中　ありがとうございます';
     cls  = 'banner-pro';
+  } else if (plan === 'lite') {
+    html = '📘 ライト版でご利用中　ありがとうございます';
+    cls  = 'banner-lite';
   } else if (S.usageCount === 0) {
     html = '🎁 今なら3回まで無料でお試しいただけます（登録不要）';
     cls  = 'banner-fresh';
@@ -791,7 +854,18 @@ function updateUsageBanner() {
 function updateProBadge() {
   const badge = document.getElementById('pro-status-badge');
   if (!badge) return;
-  badge.style.display = S.proUnlocked ? 'inline-block' : 'none';
+  const plan = getActivePlan();
+  if (plan === 'pro') {
+    badge.style.display = 'inline-block';
+    badge.style.background = 'linear-gradient(135deg,#b07d10,#daa520)';
+    badge.textContent = '🔓 Pro版';
+  } else if (plan === 'lite') {
+    badge.style.display = 'inline-block';
+    badge.style.background = 'linear-gradient(135deg,#047857,#10b981)';
+    badge.textContent = '📘 ライト版';
+  } else {
+    badge.style.display = 'none';
+  }
 }
 
 function showUpgradeModal() {
@@ -807,6 +881,14 @@ function goToStripe() {
   window.open(STRIPE_URL, '_blank');
 }
 
+function goToNote() {
+  if (NOTE_URL === '【リンク】') {
+    alert('⚠️ note販売ページのURLが未設定です。\nHTML内の NOTE_URL を実際のURLに差し替えてください。');
+    return;
+  }
+  window.open(NOTE_URL, '_blank');
+}
+
 function showUnlockModal() {
   closeUpgradeModal();
   document.getElementById('pw-error').style.display = 'none';
@@ -820,13 +902,25 @@ function closeUnlockModal() {
 
 function tryUnlock() {
   const v = (document.getElementById('pw-input').value || '').trim();
+
   if (v === PRO_PASSWORD) {
+    // Pro版解除
     S.proUnlocked = true;
     localStorage.setItem(LS_UNLOCK, 'true');
     closeUnlockModal();
     updateProBadge();
     updateUsageBanner();
-    alert('✅ Pro版が有効になりました。\n詳細結果をお楽しみください。');
+    alert('✅ Pro版が有効になりました。\n遺言書下書き＋Word出力もご利用いただけます。');
+    renderPremium();
+    showScreen('screen-premium');
+  } else if (v === LITE_PASSWORD) {
+    // ライト版解除
+    S.liteUnlocked = true;
+    localStorage.setItem(LS_LITE, 'true');
+    closeUnlockModal();
+    updateProBadge();
+    updateUsageBanner();
+    alert('✅ ライト版が有効になりました。\n詳細結果＋相続税試算＋PDF保存をご利用いただけます。');
     renderPremium();
     showScreen('screen-premium');
   } else {
@@ -848,8 +942,9 @@ document.addEventListener('keydown', (e) => {
   const p = new URLSearchParams(location.search);
   if (p.get('reset') === '1') {
     localStorage.removeItem(LS_USAGE);
+    localStorage.removeItem(LS_LITE);
     localStorage.removeItem(LS_UNLOCK);
-    alert('🔄 試用カウントとPro解放状態をリセットしました');
+    alert('🔄 試用カウント・ライト版・Pro版の解放状態をすべてリセットしました');
     location.replace(location.pathname);
   }
 })();
@@ -915,27 +1010,46 @@ async function downloadPDF() {
 </script>
 <!-- ========== UPGRADE MODAL (4回目以降表示) ========== -->
 <div id="upgrade-modal" class="overlay" style="display:none;">
-  <div class="modal" style="text-align:center;">
+  <div class="modal" style="text-align:center; max-width:480px;">
     <div style="font-size:48px;margin-bottom:8px;">🔒</div>
     <h3 class="serif" style="font-size:20px;font-weight:700;color:#1f2937;margin-bottom:8px;">無料お試しが終了しました</h3>
     <p id="upg-usage" style="font-size:12px;color:#6b7280;margin-bottom:14px;">無料お試し 3 / 3 回</p>
     <p style="font-size:14px;color:#374151;line-height:1.7;margin-bottom:18px;">
-      引き続き<strong>遺言書下書き</strong>・<strong>相続税ざっくり試算</strong>・<strong>PDF/Word保存</strong>をご利用いただくには、Pro版（買い切り 2,980円）のご購入をお願いいたします。
+      引き続きご利用いただくには、<br>下記いずれかのプランをお選びください。
     </p>
 
-    <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:12px;padding:14px;margin-bottom:18px;text-align:left;">
-      <p style="font-size:13px;font-weight:700;color:#b45309;margin-bottom:6px;">✨ Pro版でできること</p>
-      <ul style="font-size:13px;color:#374151;line-height:1.9;list-style:none;padding:0;">
-        <li>✅ 自筆証書遺言の下書き（あなた専用）</li>
-        <li>✅ 相続税ざっくり試算</li>
-        <li>✅ PDF / Word 形式で保存</li>
-        <li>✅ 準備チェックリスト</li>
-        <li>✅ 何度でも診断・出力OK</li>
+    <!-- ライト版カード -->
+    <div style="background:#ecfdf5;border:2px solid #10b981;border-radius:12px;padding:16px;margin-bottom:14px;text-align:left;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <p style="font-size:14px;font-weight:700;color:#047857;">📘 ライト版（買い切り）</p>
+        <p style="font-size:18px;font-weight:700;color:#047857;">980円</p>
+      </div>
+      <ul style="font-size:12px;color:#374151;line-height:1.8;list-style:none;padding:0;margin-bottom:10px;">
+        <li>✅ 何度でも診断OK</li>
+        <li>✅ 詳細結果＋相続税ざっくり試算</li>
+        <li>✅ PDF保存OK</li>
+        <li style="color:#9ca3af;">✗ 遺言書下書き全文 / Word出力なし</li>
       </ul>
+      <button onclick="goToNote()" class="btn-sub" style="width:100%;background:#10b981;color:#fff;border-color:#10b981;padding:10px 20px;font-size:14px;">💳 noteで980円購入</button>
     </div>
 
-    <button onclick="goToStripe()" class="btn-gold" style="width:100%;margin-bottom:10px;">💳 2,980円で購入する</button>
-    <button onclick="showUnlockModal()" class="btn-sub" style="width:100%;margin-bottom:8px;">🔑 すでにご購入の方（パスワード入力）</button>
+    <!-- Pro版カード -->
+    <div style="background:#fffbeb;border:2px solid #fcd34d;border-radius:12px;padding:16px;margin-bottom:14px;text-align:left;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <p style="font-size:14px;font-weight:700;color:#b45309;">👑 Pro版（買い切り）</p>
+        <p style="font-size:18px;font-weight:700;color:#b45309;">2,980円</p>
+      </div>
+      <ul style="font-size:12px;color:#374151;line-height:1.8;list-style:none;padding:0;margin-bottom:10px;">
+        <li>✅ 何度でも診断OK</li>
+        <li>✅ 詳細結果＋相続税ざっくり試算</li>
+        <li>✅ <strong>遺言書下書き全文</strong></li>
+        <li>✅ PDF ＋ <strong>Word</strong> 両方OK</li>
+        <li>✅ 準備チェックリスト</li>
+      </ul>
+      <button onclick="goToStripe()" class="btn-gold" style="width:100%;padding:10px 20px;font-size:14px;">💳 Stripeで2,980円購入</button>
+    </div>
+
+    <button onclick="showUnlockModal()" class="btn-sub" style="width:100%;margin-bottom:8px;font-size:13px;padding:10px 20px;">🔑 すでにご購入の方（パスワード入力）</button>
     <button onclick="closeUpgradeModal()" style="background:none;border:none;color:#9ca3af;font-size:13px;cursor:pointer;margin-top:6px;">閉じる</button>
   </div>
 </div>
