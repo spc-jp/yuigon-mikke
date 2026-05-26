@@ -281,10 +281,134 @@ body {
 .footer { text-align: center; padding: 20px; font-size: 10px; color: var(--text-light); line-height: 1.8; }
 
 /* ローディング */
-.generating-box { background: var(--warm-white); border: 2px solid var(--border); border-radius: 14px; padding: 32px 20px; text-align: center; margin-bottom: 18px; }
-.generating-icon { font-size: 36px; margin-bottom: 12px; animation: spin 2s linear infinite; display: inline-block; }
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-.generating-text { font-size: 14px; color: var(--text-mid); font-weight: 500; }
+.generating-box {
+  background: linear-gradient(160deg, #fdf8ee 0%, #f5f0e0 100%);
+  border: 2px solid rgba(208,169,0,0.3);
+  border-radius: 18px;
+  padding: 40px 24px 36px;
+  text-align: center;
+  margin-bottom: 18px;
+  position: relative;
+  overflow: hidden;
+}
+.generating-box::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border: 1px solid rgba(208,169,0,0.18);
+  border-radius: 12px;
+  pointer-events: none;
+}
+.generating-scene {
+  position: relative;
+  width: 140px;
+  height: 120px;
+  margin: 0 auto 20px;
+}
+/* 羊皮紙 */
+.gen-paper {
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 110px; height: 90px;
+  background: linear-gradient(160deg, #fefaf0 0%, #f5edd8 100%);
+  border-radius: 4px 4px 6px 6px;
+  border: 1px solid rgba(208,169,0,0.4);
+  box-shadow: 2px 4px 12px rgba(0,0,0,0.1);
+}
+/* 罫線 */
+.gen-paper::after {
+  content: '';
+  position: absolute;
+  top: 18px; left: 12px; right: 12px;
+  height: 1px;
+  background: rgba(208,169,0,0.25);
+  box-shadow:
+    0 12px 0 rgba(208,169,0,0.2),
+    0 24px 0 rgba(208,169,0,0.15),
+    0 36px 0 rgba(208,169,0,0.1),
+    0 48px 0 rgba(208,169,0,0.08);
+}
+/* 書かれていく文字のライン */
+.gen-line {
+  position: absolute;
+  left: 14px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--navy) 0%, rgba(34,54,112,0.3) 100%);
+  border-radius: 2px;
+  animation: writeLine 2.4s ease-in-out infinite;
+}
+.gen-line:nth-child(1) { top: 27px; width: 0; animation-delay: 0s; }
+.gen-line:nth-child(2) { top: 39px; width: 0; animation-delay: 0.6s; }
+.gen-line:nth-child(3) { top: 51px; width: 0; animation-delay: 1.2s; }
+.gen-line:nth-child(4) { top: 63px; width: 0; animation-delay: 1.8s; }
+@keyframes writeLine {
+  0%   { width: 0; opacity: 1; }
+  60%  { width: 72px; opacity: 1; }
+  80%  { width: 72px; opacity: 0.6; }
+  100% { width: 0; opacity: 0; }
+}
+/* ペン本体 */
+.gen-pen {
+  position: absolute;
+  top: 0; right: 10px;
+  font-size: 36px;
+  animation: penMove 2.4s ease-in-out infinite;
+  transform-origin: bottom right;
+  filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.15));
+}
+@keyframes penMove {
+  0%   { transform: translate(0px, 28px) rotate(-35deg); }
+  60%  { transform: translate(-58px, 28px) rotate(-35deg); }
+  65%  { transform: translate(-58px, 10px) rotate(-35deg); }
+  66%  { transform: translate(0px, 40px) rotate(-35deg); }
+  100% { transform: translate(0px, 28px) rotate(-35deg); }
+}
+/* 光のキラキラ */
+.gen-sparkle {
+  position: absolute;
+  font-size: 14px;
+  animation: sparkle 2s ease-in-out infinite;
+  opacity: 0;
+}
+.gen-sparkle:nth-child(1) { top: 8px; left: 20px; animation-delay: 0.3s; }
+.gen-sparkle:nth-child(2) { top: 4px; right: 24px; animation-delay: 1.1s; }
+.gen-sparkle:nth-child(3) { top: 16px; right: 8px; animation-delay: 1.8s; }
+@keyframes sparkle {
+  0%   { opacity: 0; transform: scale(0.5) translateY(0); }
+  40%  { opacity: 1; transform: scale(1.2) translateY(-4px); }
+  100% { opacity: 0; transform: scale(0.8) translateY(-8px); }
+}
+.generating-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+.generating-sub {
+  font-size: 12px;
+  color: var(--text-light);
+  line-height: 1.8;
+}
+.generating-dots {
+  display: inline-flex;
+  gap: 5px;
+  margin-top: 12px;
+}
+.gen-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--gold);
+  animation: dotBounce 1.2s ease-in-out infinite;
+}
+.gen-dot:nth-child(2) { animation-delay: 0.2s; }
+.gen-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dotBounce {
+  0%,80%,100% { transform: translateY(0); opacity: 0.4; }
+  40% { transform: translateY(-5px); opacity: 1; }
+}
 </style>
 </head>
 <body>
@@ -620,8 +744,30 @@ async function goToResult() {
 function buildLoadingHTML() {
   return `
     <div class="generating-box">
-      <div class="generating-icon">⚙️</div>
-      <div class="generating-text">あなたの遺言書を作成しています…<br>少々お待ちください</div>
+      <div class="generating-scene">
+        <div class="gen-sparkle">✨</div>
+        <div class="gen-sparkle">⭐</div>
+        <div class="gen-sparkle">✨</div>
+        <div class="gen-pen">🖋️</div>
+        <div class="gen-paper">
+          <div class="gen-line"></div>
+          <div class="gen-line"></div>
+          <div class="gen-line"></div>
+          <div class="gen-line"></div>
+        </div>
+      </div>
+      <div class="generating-title">
+        あなたの想いを、<br>言葉にしています…
+      </div>
+      <div class="generating-sub">
+        家族への大切なメッセージを<br>
+        AIが丁寧に形にしています
+      </div>
+      <div class="generating-dots">
+        <div class="gen-dot"></div>
+        <div class="gen-dot"></div>
+        <div class="gen-dot"></div>
+      </div>
     </div>`;
 }
 
