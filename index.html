@@ -1,1075 +1,1024 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>遺言書みっけ｜あなたの想い、ご家族に確実に届けるために</title>
-  <link rel="icon" type="image/png" href="https://spc-jp.github.io/yuigon-mikke/favicon.png">
-  <link rel="apple-touch-icon" href="https://spc-jp.github.io/yuigon-mikke/favicon.png">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Word出力用ライブラリ -->
-  <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
-  <!-- PDF出力用ライブラリ (追加) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-  <style>
-    :root { --spc-blue: #225AD3; --spc-light: #0179E8; }
-    * { box-sizing: border-box; }
-    body {
-      font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', sans-serif;
-      background: #f7f4ef;
-      color: #2d2d2d;
-      min-height: 100vh;
-    }
-    .serif { font-family: 'Noto Serif JP', 'Hiragino Mincho ProN', serif; }
-    .grad { background: linear-gradient(135deg, #225AD3 0%, #0179E8 100%); }
-    .grad-gold { background: linear-gradient(135deg, #b07d10 0%, #daa520 100%); }
-    .card {
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.07);
-      padding: 24px;
-    }
-    .btn-main {
-      display: inline-block;
-      background: linear-gradient(135deg, #225AD3, #0179E8);
-      color: #fff;
-      border: none;
-      border-radius: 50px;
-      padding: 15px 40px;
-      font-size: 17px;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 4px 16px rgba(34,90,211,0.38);
-      transition: transform .2s, box-shadow .2s;
-      font-family: 'Noto Sans JP', sans-serif;
-      text-decoration: none;
-    }
-    .btn-main:hover { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(34,90,211,0.45); }
-    .btn-sub {
-      display: inline-block;
-      background: #fff;
-      color: #225AD3;
-      border: 2px solid #225AD3;
-      border-radius: 50px;
-      padding: 13px 36px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background .2s;
-      font-family: 'Noto Sans JP', sans-serif;
-    }
-    .btn-sub:hover { background: #f0f4ff; }
-    .btn-gold {
-      display: inline-block;
-      background: linear-gradient(135deg, #b07d10, #daa520);
-      color: #fff;
-      border: none;
-      border-radius: 50px;
-      padding: 15px 40px;
-      font-size: 17px;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 4px 16px rgba(176,125,16,0.38);
-      transition: transform .2s;
-      font-family: 'Noto Sans JP', sans-serif;
-      text-decoration: none;
-    }
-    .btn-gold:hover { transform: translateY(-2px); }
-    .progress-wrap { height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
-    .progress-fill { height: 100%; background: linear-gradient(90deg, #225AD3, #0179E8); border-radius: 4px; transition: width .4s ease; }
-    .opt-btn {
-      display: block;
-      width: 100%;
-      text-align: left;
-      border: 2px solid #e5e7eb;
-      border-radius: 12px;
-      padding: 14px 20px;
-      background: #fff;
-      font-size: 15px;
-      font-family: 'Noto Sans JP', sans-serif;
-      color: #333;
-      cursor: pointer;
-      transition: border-color .15s, background .15s;
-      margin-bottom: 10px;
-    }
-    .opt-btn:hover { border-color: #225AD3; background: #f0f5ff; }
-    .opt-btn.chosen { border-color: #225AD3; background: #e8f0fe; color: #225AD3; font-weight: 700; }
-    .badge { display: inline-block; padding: 6px 22px; border-radius: 50px; font-size: 13px; font-weight: 700; }
-    .badge-a { background: #fee2e2; color: #dc2626; }
-    .badge-b { background: #fef3c7; color: #b45309; }
-    .badge-c { background: #d1fae5; color: #047857; }
-    .badge-d { background: #dbeafe; color: #1e40af; }
-    .issue-line { border-left: 4px solid #225AD3; background: #f0f5ff; border-radius: 0 10px 10px 0; padding: 12px 16px; margin-bottom: 10px; }
-    .will-box { font-family: 'Noto Serif JP', serif; line-height: 2.1; font-size: 14px; background: #fffef8; border: 1px solid #e0d9c8; border-radius: 12px; padding: 22px; white-space: pre-line; }
-    .screen { display: none; }
-    .screen.active { display: block; }
-    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
-    .modal { background: #fff; border-radius: 20px; padding: 30px; max-width: 420px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,.28); }
-    @keyframes fadeUp { from { opacity:0; transform:translateY(18px);} to { opacity:1; transform:translateY(0);} }
-    .fade-up { animation: fadeUp .45s ease forwards; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>遺言書みっけ｜あなたの想い、きちんと伝えられますか？</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700;900&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #223670;
+  --navy-dark: #172650;
+  --navy-light: #2d4a8a;
+  --navy-mid: #1e3060;
+  --gold: #D0A900;
+  --gold-light: #f0c800;
+  --gold-pale: rgba(208,169,0,0.1);
+  --cream: #faf8f2;
+  --warm-white: #ffffff;
+  --parchment: #f5f0e8;
+  --text-dark: #1a1a2e;
+  --text-mid: #4a4a6a;
+  --text-light: #8888aa;
+  --border: #e0ddd6;
+  --border-light: #eeeae4;
+  --shadow: rgba(34,54,112,0.13);
+  --success: #2d7a4a;
+  --warning: #b85c00;
+  --danger: #c0392b;
+  --danger-bg: #ffeaea;
+  --warning-bg: #fff3e0;
+  --navy-bg: #eef2ff;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: var(--cream);
+  color: var(--text-dark);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
 
-    /* 質問番号のポップインアニメーション追加 */
-    @keyframes popIn { 0% { opacity:0; transform:scale(0.5); } 60% { transform:scale(1.15); } 100% { opacity:1; transform:scale(1); } }
-    .pop-in { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+/* ===== HEADER ===== */
+.header {
+  background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy-light) 100%);
+  padding: 14px 20px 12px;
+  display: flex; align-items: center;
+  position: sticky; top: 0; z-index: 200;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.25);
+}
+.header-left { flex: 1; cursor: pointer; }
+.header-logo { font-family: 'Noto Serif JP', serif; font-size: 20px; font-weight: 900; color: #fff; letter-spacing: 0.06em; line-height: 1; }
+.header-logo span { color: var(--gold); }
+.header-tagline { font-size: 10px; color: rgba(255,255,255,0.55); margin-top: 3px; }
+.header-badge { background: linear-gradient(135deg, var(--gold), #f0c800); color: var(--navy-dark); font-size: 10px; font-weight: 900; padding: 4px 12px; border-radius: 20px; letter-spacing: 0.06em; white-space: nowrap; }
 
-    @media print {
-      body { background: #fff; }
-      .no-print { display: none !important; }
-      .print-show { display: block !important; }
-      .screen { display: none !important; }
-      #screen-premium { display: block !important; }
-      .card { box-shadow: none !important; border: 1px solid #ddd; }
-      header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    }
-    .print-show { display: none; }
+/* ===== PROGRESS ===== */
+.progress-wrap { background: var(--navy-mid); padding: 8px 16px; display: none; }
+.progress-inner { display: flex; align-items: center; max-width: 640px; margin: 0 auto; }
+.prog-step { display: flex; align-items: center; flex: 1; }
+.prog-dot { width: 24px; height: 24px; border-radius: 50%; background: rgba(255,255,255,0.12); border: 2px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.4); transition: all 0.3s; flex-shrink: 0; }
+.prog-dot.active { background: var(--gold); border-color: var(--gold); color: var(--navy-dark); }
+.prog-dot.done { background: rgba(208,169,0,0.35); border-color: var(--gold); color: var(--gold); }
+.prog-lbl { font-size: 9px; color: rgba(255,255,255,0.35); margin-left: 5px; white-space: nowrap; }
+.prog-lbl.active { color: var(--gold); font-weight: 700; }
+.prog-line { flex: 1; height: 1px; background: rgba(255,255,255,0.12); margin: 0 4px; }
+.prog-line.done { background: rgba(208,169,0,0.4); }
 
-    /* ========== USAGE BANNER ========== */
-    .usage-banner {
-      text-align: center;
-      padding: 11px 16px;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      font-family: 'Noto Sans JP', sans-serif;
-      border-bottom: 1px solid rgba(0,0,0,0.04);
-      transition: background .25s ease;
-    }
-    .usage-banner.banner-fresh {
-      background: #fff7ed;
-      color: #b45309;
-    }
-    .usage-banner.banner-using {
-      background: #eff6ff;
-      color: #1e40af;
-    }
-    .usage-banner.banner-end {
-      background: linear-gradient(90deg, #fee2e2, #fecaca);
-      color: #991b1b;
-      cursor: pointer;
-      animation: bannerPulse 2.4s ease-in-out infinite;
-    }
-    .usage-banner.banner-end:hover { filter: brightness(0.97); }
-    .usage-banner.banner-pro {
-      background: linear-gradient(90deg, #b07d10, #daa520);
-      color: #fff;
-      letter-spacing: 0.05em;
-    }
-    .usage-banner.banner-lite {
-      background: linear-gradient(90deg, #047857, #10b981);
-      color: #fff;
-      letter-spacing: 0.04em;
-    }
-    @keyframes bannerPulse {
-      0%, 100% { box-shadow: inset 0 -2px 0 rgba(220,38,38,0); }
-      50%      { box-shadow: inset 0 -2px 0 rgba(220,38,38,0.35); }
-    }
-    @media (max-width: 480px) {
-      .usage-banner { font-size: 12px; padding: 9px 12px; }
-    }
-  </style>
+/* ===== MAIN ===== */
+.main { max-width: 640px; margin: 0 auto; padding: 20px 16px 100px; }
+.step-card { display: none; animation: fadeUp 0.3s ease; }
+.step-card.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ===== STEP HEAD ===== */
+.step-head { margin-bottom: 20px; }
+.step-num { font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 0.12em; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.step-num::before { content: ''; display: inline-block; width: 20px; height: 2px; background: var(--gold); }
+.step-title { font-family: 'Noto Serif JP', serif; font-size: 22px; font-weight: 700; color: var(--navy); line-height: 1.45; margin-bottom: 8px; }
+.step-desc { font-size: 13px; color: var(--text-mid); line-height: 1.75; }
+
+/* ===== CHOICE CARDS ===== */
+.choices { display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px; }
+.choice-card { background: var(--warm-white); border: 2px solid var(--border); border-radius: 14px; padding: 15px 16px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 14px; position: relative; overflow: hidden; }
+.choice-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--border); transition: background 0.2s; }
+.choice-card:hover { border-color: var(--navy-light); box-shadow: 0 4px 16px var(--shadow); transform: translateY(-1px); }
+.choice-card:hover::before { background: var(--navy-light); }
+.choice-card.sel { border-color: var(--navy); background: var(--navy-bg); }
+.choice-card.sel::before { background: var(--gold); }
+.choice-icon { font-size: 24px; flex-shrink: 0; width: 38px; text-align: center; }
+.choice-title { font-weight: 700; font-size: 14px; color: var(--text-dark); margin-bottom: 2px; }
+.choice-sub { font-size: 11px; color: var(--text-light); line-height: 1.5; }
+.choice-check { margin-left: auto; width: 22px; height: 22px; border: 2px solid var(--border); border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; color: transparent; transition: all 0.2s; }
+.choice-card.sel .choice-check { background: var(--navy); border-color: var(--navy); color: white; }
+
+/* GRID */
+.choices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 22px; }
+.grid-card { background: var(--warm-white); border: 2px solid var(--border); border-radius: 12px; padding: 14px 10px; cursor: pointer; transition: all 0.2s; text-align: center; position: relative; }
+.grid-card:hover { border-color: var(--navy-light); box-shadow: 0 3px 12px var(--shadow); transform: translateY(-1px); }
+.grid-card.sel { border-color: var(--navy); background: var(--navy-bg); }
+.grid-badge { position: absolute; top: -1px; right: -1px; background: var(--navy); color: white; font-size: 9px; padding: 2px 7px; border-radius: 0 10px 0 8px; font-weight: 700; opacity: 0; transition: opacity 0.2s; }
+.grid-card.sel .grid-badge { opacity: 1; }
+.grid-icon { font-size: 22px; margin-bottom: 6px; }
+.grid-label { font-size: 12px; font-weight: 700; color: var(--text-dark); line-height: 1.3; }
+.grid-sub { font-size: 10px; color: var(--text-light); margin-top: 2px; }
+
+/* Q blocks */
+.q-block { margin-bottom: 18px; }
+.q-label { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 9px; }
+.radio-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.radio-btn { background: var(--warm-white); border: 2px solid var(--border); border-radius: 30px; padding: 8px 16px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s; color: var(--text-mid); font-family: 'Noto Sans JP', sans-serif; }
+.radio-btn:hover { border-color: var(--navy-light); color: var(--navy); }
+.radio-btn.sel { background: var(--navy); border-color: var(--navy); color: white; font-weight: 700; }
+
+/* ===== BUTTONS ===== */
+.btn-row { display: flex; gap: 10px; margin-top: 12px; }
+.btn-next { flex: 1; background: var(--navy); color: white; border: none; border-radius: 50px; padding: 15px 20px; font-size: 15px; font-weight: 700; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-next:hover { background: var(--navy-light); transform: translateY(-1px); box-shadow: 0 6px 18px var(--shadow); }
+.btn-next:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-back { background: transparent; color: var(--text-mid); border: 2px solid var(--border); border-radius: 50px; padding: 15px 18px; font-size: 13px; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; transition: all 0.2s; }
+.btn-back:hover { border-color: var(--navy); color: var(--navy); }
+
+/* ===== TOP ===== */
+.top-hero { text-align: center; padding: 28px 12px 22px; }
+.top-icon { font-size: 54px; margin-bottom: 14px; }
+.top-eyebrow { display: inline-block; background: var(--gold-pale); border: 1px solid rgba(208,169,0,0.4); color: var(--warning); font-size: 11px; font-weight: 700; padding: 4px 16px; border-radius: 20px; margin-bottom: 14px; letter-spacing: 0.06em; }
+.top-title { font-family: 'Noto Serif JP', serif; font-size: 26px; font-weight: 900; color: var(--navy); line-height: 1.45; margin-bottom: 14px; }
+.top-title span { color: var(--gold); }
+.top-sub { font-size: 13px; color: var(--text-mid); line-height: 1.9; margin-bottom: 24px; }
+.top-features { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 24px; }
+.top-feat { background: var(--warm-white); border: 1px solid var(--border); border-radius: 12px; padding: 13px 6px; text-align: center; }
+.top-feat-icon { font-size: 20px; margin-bottom: 5px; }
+.top-feat-text { font-size: 10px; color: var(--text-mid); line-height: 1.5; font-weight: 500; }
+.btn-start { background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%); color: white; border: none; border-radius: 50px; padding: 18px 40px; font-size: 17px; font-weight: 700; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; transition: all 0.2s; width: 100%; max-width: 360px; box-shadow: 0 8px 28px var(--shadow); }
+.btn-start:hover { transform: translateY(-2px); box-shadow: 0 12px 36px var(--shadow); }
+.top-note { font-size: 10px; color: var(--text-light); margin-top: 12px; line-height: 1.7; }
+.top-price-box { background: linear-gradient(135deg, var(--navy-dark), var(--navy-light)); border-radius: 14px; padding: 16px; margin-bottom: 22px; display: flex; align-items: center; justify-content: center; gap: 16px; }
+.top-price-label { font-size: 12px; color: rgba(255,255,255,0.7); }
+.top-price-num { font-family: 'Noto Serif JP', serif; font-size: 28px; font-weight: 900; color: var(--gold); }
+.top-price-unit { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+.top-trial { font-size: 12px; color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.1); padding: 4px 12px; border-radius: 20px; margin-left: 8px; }
+
+/* ===== RESULT / 遺言書出力 ===== */
+.result-hero { background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy-light) 100%); border-radius: 18px; padding: 24px 22px; margin-bottom: 18px; position: relative; overflow: hidden; }
+.result-hero::after { content: '📜'; position: absolute; right: 16px; top: 16px; font-size: 48px; opacity: 0.12; }
+.result-tag { display: inline-block; background: var(--gold); color: var(--navy-dark); font-size: 11px; font-weight: 700; padding: 4px 14px; border-radius: 20px; margin-bottom: 12px; }
+.result-h { font-family: 'Noto Serif JP', serif; font-size: 20px; font-weight: 700; color: white; line-height: 1.5; margin-bottom: 8px; }
+.result-summary { font-size: 13px; color: rgba(255,255,255,0.75); line-height: 1.85; }
+
+.sec-title { font-size: 11px; font-weight: 700; color: var(--text-light); letter-spacing: 0.1em; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.sec-title::before { content: ''; display: inline-block; width: 14px; height: 2px; background: var(--gold); }
+
+/* ガイドカード */
+.guide-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+.guide-item { background: var(--warm-white); border: 1px solid var(--border); border-radius: 10px; padding: 13px 14px; display: flex; gap: 10px; align-items: flex-start; position: relative; overflow: hidden; }
+.guide-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+.guide-item.lv-urgent::before { background: var(--danger); }
+.guide-item.lv-important::before { background: var(--warning); }
+.guide-item.lv-normal::before { background: var(--navy); }
+.guide-item.lv-info::before { background: var(--text-light); }
+.guide-num { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+.lv-urgent .guide-num { background: var(--danger-bg); color: var(--danger); }
+.lv-important .guide-num { background: var(--warning-bg); color: var(--warning); }
+.lv-normal .guide-num { background: var(--navy-bg); color: var(--navy); }
+.lv-info .guide-num { background: #f0f0f0; color: var(--text-light); }
+.guide-title { font-size: 14px; font-weight: 700; color: var(--text-dark); margin-bottom: 3px; }
+.guide-detail { font-size: 12px; color: var(--text-mid); line-height: 1.7; }
+
+/* 遺言書ドラフト */
+.draft-box {
+  background: var(--parchment);
+  border: 2px solid rgba(208,169,0,0.35);
+  border-radius: 14px;
+  padding: 24px 20px;
+  margin-bottom: 18px;
+  position: relative;
+}
+.draft-box::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1px solid rgba(208,169,0,0.2);
+  border-radius: 10px;
+  pointer-events: none;
+}
+.draft-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.draft-label { font-size: 11px; font-weight: 700; color: var(--gold); letter-spacing: 0.1em; display: flex; align-items: center; gap: 6px; }
+.draft-label::before { content: ''; display: inline-block; width: 14px; height: 2px; background: var(--gold); }
+.btn-copy { background: var(--navy); color: white; border: none; border-radius: 20px; padding: 6px 14px; font-size: 11px; font-weight: 700; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; transition: all 0.2s; }
+.btn-copy:hover { background: var(--navy-light); }
+.btn-copy.copied { background: var(--success); }
+.draft-content { font-family: 'Noto Serif JP', serif; font-size: 14px; line-height: 2; color: var(--text-dark); white-space: pre-wrap; }
+.draft-disclaimer { margin-top: 14px; padding: 10px 14px; background: rgba(184,92,0,0.08); border-radius: 8px; border-left: 3px solid var(--warning); font-size: 11px; color: var(--warning); line-height: 1.65; font-weight: 500; }
+
+/* AIチャット */
+.ai-section { background: var(--warm-white); border: 2px solid var(--border); border-radius: 18px; overflow: hidden; margin-bottom: 16px; }
+.ai-header { background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy-light) 100%); padding: 16px 20px; display: flex; align-items: center; gap: 12px; }
+.ai-avatar { width: 44px; height: 44px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+.ai-header-name { font-size: 15px; font-weight: 700; color: white; }
+.ai-header-sub { font-size: 11px; color: rgba(255,255,255,0.65); margin-top: 2px; }
+.ai-trial-badge { margin-left: auto; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; }
+.ai-suggestion-wrap { padding: 14px 16px 6px; }
+.ai-suggestion-label { font-size: 11px; color: var(--text-light); margin-bottom: 8px; font-weight: 700; }
+.ai-suggestions { display: flex; gap: 6px; flex-wrap: wrap; }
+.ai-sug-btn { background: var(--navy-bg); border: 1px solid #b8c8ff; color: var(--navy); font-size: 11px; font-weight: 700; padding: 7px 14px; border-radius: 20px; cursor: pointer; transition: all 0.2s; font-family: 'Noto Sans JP', sans-serif; }
+.ai-sug-btn:hover { background: var(--navy); color: white; border-color: var(--navy); }
+.ai-messages { min-height: 80px; max-height: 400px; overflow-y: auto; padding: 8px 16px; display: flex; flex-direction: column; gap: 12px; }
+.msg { display: flex; gap: 8px; }
+.msg.user { flex-direction: row-reverse; }
+.msg-bubble { max-width: 82%; padding: 12px 14px; border-radius: 14px; font-size: 13px; line-height: 1.75; }
+.msg.ai .msg-bubble { background: #f4f6fb; border: 1px solid var(--border-light); color: var(--text-dark); border-radius: 4px 14px 14px 14px; }
+.msg.user .msg-bubble { background: var(--navy); color: white; border-radius: 14px 4px 14px 14px; }
+.msg-avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; margin-top: 2px; }
+.msg.ai .msg-avatar { background: var(--gold); }
+.msg.user .msg-avatar { background: var(--navy-light); }
+.typing-indicator { display: flex; gap: 4px; align-items: center; padding: 4px 0; }
+.typing-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-light); animation: bounce 1.2s infinite; }
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce { 0%,80%,100% { transform: translateY(0); } 40% { transform: translateY(-5px); } }
+.ai-input-row { padding: 12px 14px 14px; display: flex; gap: 8px; align-items: flex-end; border-top: 1px solid var(--border-light); }
+.ai-input { flex: 1; border: 2px solid var(--border); border-radius: 12px; padding: 10px 14px; font-size: 13px; font-family: 'Noto Sans JP', sans-serif; resize: none; outline: none; transition: border-color 0.2s; min-height: 44px; max-height: 120px; background: var(--cream); }
+.ai-input:focus { border-color: var(--navy-light); }
+.ai-send-btn { background: var(--navy); color: white; border: none; border-radius: 10px; width: 44px; height: 44px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
+.ai-send-btn:hover { background: var(--navy-light); transform: scale(1.05); }
+.ai-send-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+
+/* クロスセルバナー */
+.crosssell-banner { background: var(--parchment); border: 1px solid rgba(208,169,0,0.3); border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
+.crosssell-icon { font-size: 28px; flex-shrink: 0; }
+.crosssell-text { flex: 1; }
+.crosssell-title { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+.crosssell-sub { font-size: 11px; color: var(--text-mid); }
+.btn-crosssell { background: var(--navy); color: white; border: none; border-radius: 20px; padding: 8px 14px; font-size: 11px; font-weight: 700; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: all 0.2s; }
+.btn-crosssell:hover { background: var(--navy-light); }
+
+.btn-restart { width: 100%; background: transparent; color: var(--text-mid); border: 2px solid var(--border); border-radius: 50px; padding: 13px; font-size: 13px; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; transition: all 0.2s; margin-top: 6px; }
+.btn-restart:hover { border-color: var(--navy); color: var(--navy); }
+
+/* ===== PAYWALL ===== */
+.paywall-overlay { position: fixed; inset: 0; background: rgba(23,38,80,0.88); backdrop-filter: blur(4px); z-index: 500; display: none; align-items: flex-end; justify-content: center; }
+.paywall-overlay.show { display: flex; }
+.paywall-card { background: var(--warm-white); border-radius: 24px 24px 0 0; padding: 28px 24px 40px; width: 100%; max-width: 520px; animation: slideUp 0.35s ease; }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.paywall-title { font-family: 'Noto Serif JP', serif; font-size: 21px; font-weight: 700; color: var(--navy); margin-bottom: 10px; text-align: center; }
+.paywall-sub { font-size: 13px; color: var(--text-mid); line-height: 1.8; text-align: center; margin-bottom: 20px; }
+.paywall-price { background: linear-gradient(135deg, var(--navy-dark), var(--navy-light)); border-radius: 14px; padding: 18px; text-align: center; margin-bottom: 18px; }
+.paywall-price-num { font-family: 'Noto Serif JP', serif; font-size: 34px; font-weight: 900; color: var(--gold); }
+.paywall-price-unit { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 4px; }
+.paywall-features { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+.paywall-features li { font-size: 13px; color: var(--text-mid); padding-left: 22px; position: relative; line-height: 1.6; }
+.paywall-features li::before { content: '✓'; position: absolute; left: 0; color: var(--success); font-weight: 700; }
+.btn-stripe { width: 100%; background: var(--gold); color: var(--navy-dark); border: none; border-radius: 50px; padding: 16px; font-size: 16px; font-weight: 700; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; margin-bottom: 14px; transition: all 0.2s; }
+.btn-stripe:hover { background: var(--gold-light); transform: translateY(-1px); }
+.paywall-pass-row { display: flex; gap: 8px; }
+.paywall-pass-input { flex: 1; border: 2px solid var(--border); border-radius: 30px; padding: 10px 16px; font-size: 13px; font-family: 'Noto Sans JP', sans-serif; outline: none; }
+.paywall-pass-input:focus { border-color: var(--navy); }
+.btn-pass { background: var(--navy); color: white; border: none; border-radius: 30px; padding: 10px 18px; font-size: 13px; font-weight: 700; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; white-space: nowrap; }
+.paywall-err { font-size: 12px; color: var(--danger); margin-top: 6px; text-align: center; }
+
+/* ===== TRIAL BANNER ===== */
+.trial-banner { position: fixed; bottom: 0; left: 0; right: 0; z-index: 300; display: flex; justify-content: center; padding: 0 0 env(safe-area-inset-bottom); pointer-events: none; }
+.trial-banner-inner { width: 100%; max-width: 640px; pointer-events: all; }
+.trial-banner-free { background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy-light) 100%); padding: 12px 20px; display: flex; align-items: center; gap: 10px; box-shadow: 0 -4px 20px rgba(0,0,0,0.2); }
+.trial-banner-icon { font-size: 20px; flex-shrink: 0; }
+.trial-banner-text { flex: 1; }
+.trial-banner-title { font-size: 13px; font-weight: 700; color: white; line-height: 1.3; }
+.trial-banner-sub { font-size: 10px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+.trial-banner-dots { display: flex; gap: 4px; flex-shrink: 0; }
+.trial-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.25); transition: background 0.3s; }
+.trial-dot.used { background: var(--gold); }
+.trial-banner-end { background: linear-gradient(135deg, #b00020 0%, #e0002a 100%); padding: 12px 16px; display: flex; align-items: center; gap: 10px; box-shadow: 0 -4px 20px rgba(0,0,0,0.25); }
+.trial-banner-end-text { flex: 1; font-size: 13px; font-weight: 700; color: white; line-height: 1.4; }
+.trial-banner-end-text span { font-size: 11px; font-weight: 400; opacity: 0.85; display: block; margin-top: 2px; }
+.btn-banner-stripe { background: var(--gold); color: var(--navy-dark); border: none; border-radius: 30px; padding: 9px 16px; font-size: 12px; font-weight: 700; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: all 0.2s; }
+.btn-banner-stripe:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+.footer { text-align: center; padding: 20px; font-size: 10px; color: var(--text-light); line-height: 1.8; }
+
+/* ローディング */
+.generating-box { background: var(--warm-white); border: 2px solid var(--border); border-radius: 14px; padding: 32px 20px; text-align: center; margin-bottom: 18px; }
+.generating-icon { font-size: 36px; margin-bottom: 12px; animation: spin 2s linear infinite; display: inline-block; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.generating-text { font-size: 14px; color: var(--text-mid); font-weight: 500; }
+</style>
 </head>
 <body>
 
-<!-- ========== TOP ========== -->
-<div id="screen-top" class="screen active">
-  <div class="grad text-white">
-    <header class="max-w-2xl mx-auto px-4 py-5 flex items-center justify-between">
-      <div class="flex items-center gap-2 cursor-pointer" onclick="showScreen('screen-top')">
-        <span class="text-2xl">📜</span>
-        <span class="serif font-bold text-xl">遺言書みっけ</span>
-      </div>
-      <div class="flex items-center gap-2">
-        <span id="pro-status-badge" style="display:none;background:linear-gradient(135deg,#b07d10,#daa520);color:#fff;padding:4px 12px;border-radius:50px;font-size:11px;font-weight:700;">🔓 Pro版</span>
-        <span id="hdr-firm" class="text-sm opacity-90 font-medium"></span>
-      </div>
-    </header>
-
-    <!-- Usage banner (top) -->
-    <div id="banner-top" class="usage-banner banner-fresh"></div>
-
-    <div class="text-center px-4 pt-8 pb-20">
-      <div class="max-w-xl mx-auto">
-        <p class="text-xs tracking-widest opacity-70 mb-4 uppercase">Yuigon Mikke</p>
-        <h1 class="serif text-4xl md:text-5xl font-bold leading-tight mb-6">遺言書みっけ</h1>
-        <p class="text-lg md:text-xl opacity-90 leading-relaxed mb-4">あなたの想い、ご家族に<br>確実に届けるために</p>
-        <p class="text-sm md:text-base opacity-75 mb-10">12の質問で、あなたに必要な遺言書準備がわかります</p>
-        <button onclick="startQuiz()" class="btn-main text-lg shadow-lg">📝 診断スタート（無料）</button>
-        <p class="text-xs opacity-60 mt-4">所要時間：約3〜5分</p>
-      </div>
-    </div>
+<div class="header">
+  <div class="header-left" onclick="restart()">
+    <div class="header-logo">遺言書<span>みっけ</span></div>
+    <div class="header-tagline">あなたの想い、きちんと伝えられますか？</div>
   </div>
-
-  <div class="max-w-2xl mx-auto px-4 py-10">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-      <div class="card text-center">
-        <div class="text-3xl mb-3">🎯</div>
-        <h3 class="font-bold mb-1 text-gray-800">必要度を判定</h3>
-        <p class="text-sm text-gray-500">4段階で遺言書の必要度をわかりやすく判定</p>
-      </div>
-      <div class="card text-center">
-        <div class="text-3xl mb-3">⚠️</div>
-        <h3 class="font-bold mb-1 text-gray-800">課題を明確化</h3>
-        <p class="text-sm text-gray-500">あなたのケースで特に注意すべき点をピックアップ</p>
-      </div>
-      <div class="card text-center">
-        <div class="text-3xl mb-3">📄</div>
-        <h3 class="font-bold mb-1 text-gray-800">下書きを生成</h3>
-        <p class="text-sm text-gray-500">診断結果に基づいた遺言書の下書きを自動作成</p>
-      </div>
-    </div>
-    <div class="card" style="background:#eff6ff; border:1px solid #bfdbfe;">
-      <p class="text-xs text-blue-700 leading-relaxed text-center">
-        ⚠️ 本ツールは参考情報の提供を目的とするものです。法的に有効な遺言書の作成には、<br>税理士・弁護士等の専門家にご相談ください。
-      </p>
-    </div>
-  </div>
-
-  <footer class="text-center text-xs text-gray-400 py-6 border-t border-gray-100">
-    <p id="ftr-firm" class="text-gray-600 font-medium mb-1"></p>
-    <p>© 2026 Smart Solutions / SPC</p>
-  </footer>
+  <div class="header-badge">買い切り版</div>
 </div>
 
-<!-- ========== QUIZ ========== -->
-<div id="screen-quiz" class="screen">
-  <header class="grad text-white">
-    <div class="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
-      <span class="serif font-bold cursor-pointer" onclick="showScreen('screen-top')">遺言書みっけ</span>
-      <span class="text-sm opacity-65">診断中</span>
-    </div>
-  </header>
-
-  <!-- Usage banner (quiz) -->
-  <div id="banner-quiz" class="usage-banner banner-fresh"></div>
-
-  <div class="max-w-2xl mx-auto px-4 py-6">
-    <div class="mb-5">
-      <div class="flex justify-between text-sm text-gray-500 mb-2">
-        <span id="q-label">質問 1 / 12</span>
-        <span id="q-pct">0%</span>
-      </div>
-      <div class="progress-wrap"><div id="q-bar" class="progress-fill" style="width:0%"></div></div>
-    </div>
-    <div id="quiz-card" class="card fade-up">
-      <div class="flex items-start gap-3 mb-5">
-        <div id="q-num" class="grad text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">1</div>
-        <p id="q-text" class="serif text-lg font-medium text-gray-800 leading-relaxed"></p>
-      </div>
-      <div id="q-opts"></div>
-      <div class="mt-4 flex gap-3">
-        <button id="btn-prev" onclick="goPrev()" class="btn-sub text-sm py-2 px-5 hidden">← 戻る</button>
-        <button id="btn-next" onclick="goNext()" class="btn-main flex-1 text-base" disabled>次へ →</button>
-      </div>
-    </div>
+<div class="progress-wrap" id="progressWrap">
+  <div class="progress-inner">
+    <div class="prog-step"><div class="prog-dot" id="pd1">1</div><div class="prog-lbl" id="pl1">理由</div></div>
+    <div class="prog-line" id="pline1"></div>
+    <div class="prog-step"><div class="prog-dot" id="pd2">2</div><div class="prog-lbl" id="pl2">家族構成</div></div>
+    <div class="prog-line" id="pline2"></div>
+    <div class="prog-step"><div class="prog-dot" id="pd3">3</div><div class="prog-lbl" id="pl3">財産</div></div>
+    <div class="prog-line" id="pline3"></div>
+    <div class="prog-step"><div class="prog-dot" id="pd4">4</div><div class="prog-lbl" id="pl4">遺言書の種類</div></div>
+    <div class="prog-line" id="pline4"></div>
+    <div class="prog-step"><div class="prog-dot" id="pd5">5</div><div class="prog-lbl" id="pl5">AI生成</div></div>
   </div>
 </div>
 
-<!-- ========== RESULT (FREE) ========== -->
-<div id="screen-result" class="screen">
-  <header class="grad text-white">
-    <div class="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
-      <span class="serif font-bold cursor-pointer" onclick="showScreen('screen-top')">遺言書みっけ</span>
-      <span class="text-sm opacity-65">診断結果</span>
+<div class="main">
+
+  <!-- TOP -->
+  <div class="step-card active" id="step0">
+    <div class="top-hero">
+      <div class="top-icon">📜</div>
+      <div class="top-eyebrow">✍️ 遺言書はあなたの最後のプレゼントです</div>
+      <div class="top-title">あなたの想い、<br><span>きちんと伝えられますか？</span></div>
+      <div class="top-sub">
+        「誰に何を残すか」を決めるのはあなた自身です。<br>
+        状況を選ぶだけで、遺言書の書き方ガイドと<br>
+        文章ドラフトをAIが自動で作成します。
+      </div>
+      <div class="top-price-box">
+        <div>
+          <div class="top-price-label">買い切り価格</div>
+          <div class="top-price-num">¥4,980</div>
+          <div class="top-price-unit">（税込・永久利用可）</div>
+        </div>
+        <div class="top-trial">🎁 まず3回無料</div>
+      </div>
+      <div class="top-features">
+        <div class="top-feat"><div class="top-feat-icon">📋</div><div class="top-feat-text">書き方ガイドが出てくる</div></div>
+        <div class="top-feat"><div class="top-feat-icon">✍️</div><div class="top-feat-text">遺言書ドラフトを自動生成</div></div>
+        <div class="top-feat"><div class="top-feat-icon">🤖</div><div class="top-feat-text">AIに何でも相談できる</div></div>
+      </div>
+      <button class="btn-start" onclick="goStep(1)">📜 遺言書作成をはじめる</button>
+      <div class="top-note">
+        ※ このアプリが生成する文章はあくまでもたたき台・ドラフトです。<br>
+        ご利用前に必ず専門家（弁護士・司法書士）にご確認ください。<br>
+        個人情報の入力は必要ありません。
+      </div>
     </div>
-  </header>
+  </div>
 
-  <!-- Usage banner (result) -->
-  <div id="banner-result" class="usage-banner banner-fresh"></div>
+  <!-- STEP1: 理由 -->
+  <div class="step-card" id="step1">
+    <div class="step-head">
+      <div class="step-num">STEP 1</div>
+      <div class="step-title">遺言書を作りたい<br>理由を選んでください</div>
+      <div class="step-desc">最も近いものを1つ選んでください。複数ある場合はメインの理由を。</div>
+    </div>
+    <div class="choices">
+      <div class="choice-card" onclick="selectOne('reason','specific',this)">
+        <div class="choice-icon">🏠</div>
+        <div class="choice-text"><div class="choice-title">特定の人に財産を渡したい</div><div class="choice-sub">長男に土地を、次男に預貯金をなど、分け方を明確にしたい</div></div>
+        <div class="choice-check">✓</div>
+      </div>
+      <div class="choice-card" onclick="selectOne('reason','trouble',this)">
+        <div class="choice-icon">🤝</div>
+        <div class="choice-text"><div class="choice-title">兄弟間のもめごとを防ぎたい</div><div class="choice-sub">自分が亡くなった後、家族に争ってほしくない</div></div>
+        <div class="choice-check">✓</div>
+      </div>
+      <div class="choice-card" onclick="selectOne('reason','message',this)">
+        <div class="choice-icon">💌</div>
+        <div class="choice-text"><div class="choice-title">子どもや家族への想いを伝えたい</div><div class="choice-sub">財産だけでなく、感謝や願いも一緒に残したい</div></div>
+        <div class="choice-check">✓</div>
+      </div>
+      <div class="choice-card" onclick="selectOne('reason','business',this)">
+        <div class="choice-icon">🏢</div>
+        <div class="choice-text"><div class="choice-title">事業・会社を特定の人に継がせたい</div><div class="choice-sub">後継者を明確にして事業を守りたい</div></div>
+        <div class="choice-check">✓</div>
+      </div>
+      <div class="choice-card" onclick="selectOne('reason','complex',this)">
+        <div class="choice-icon">👨‍👩‍👧</div>
+        <div class="choice-text"><div class="choice-title">家族構成が複雑で整理したい</div><div class="choice-sub">再婚・離婚・認知した子など、関係が入り組んでいる</div></div>
+        <div class="choice-check">✓</div>
+      </div>
+      <div class="choice-card" onclick="selectOne('reason','charity',this)">
+        <div class="choice-icon">🌸</div>
+        <div class="choice-text"><div class="choice-title">相続人以外や団体に遺贈したい</div><div class="choice-sub">お世話になった人や寄付先に財産を残したい</div></div>
+        <div class="choice-check">✓</div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-back" onclick="goStep(0)">← 戻る</button>
+      <button class="btn-next" id="btn1" onclick="goStep(2)" disabled>次へ　→</button>
+    </div>
+  </div>
 
-  <div class="max-w-2xl mx-auto px-4 py-6 space-y-4">
-    <div class="card text-center fade-up">
-      <p class="text-sm text-gray-400 mb-2">あなたの遺言書必要度</p>
-      <div id="r-badge" class="badge mb-3"></div>
-      <h2 id="r-title" class="serif text-xl font-bold text-gray-800 mb-3"></h2>
-      <p id="r-desc" class="text-sm text-gray-600 leading-relaxed"></p>
+  <!-- STEP2: 家族構成 -->
+  <div class="step-card" id="step2">
+    <div class="step-head">
+      <div class="step-num">STEP 2</div>
+      <div class="step-title">家族構成を<br>教えてください</div>
+      <div class="step-desc">だいたいで構いません。</div>
     </div>
 
-    <div class="card fade-up">
-      <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2"><span class="text-blue-600">⚠️</span>あなたのケースで特に注意すべき点</h3>
-      <div id="r-issues"></div>
-    </div>
-
-    <div class="card fade-up">
-      <h3 class="font-bold text-gray-800 mb-3">✅ 次の一歩</h3>
-      <div id="r-steps"></div>
-    </div>
-
-    <div class="card fade-up" style="background:linear-gradient(135deg,#fffbeb,#fff7ed); border:1px solid #fcd34d;">
-      <h3 class="serif text-lg font-bold text-gray-800 text-center mb-2">📄 遺言書の下書きを今すぐ確認</h3>
-      <p class="text-sm text-gray-600 text-center mb-4 leading-relaxed">
-        診断結果をもとに<strong>あなた専用の遺言書下書き</strong>と<br>
-        <strong>相続税ざっくり試算</strong>をご確認いただけます
-      </p>
-      <ul class="text-sm text-gray-700 space-y-1.5 mb-5 max-w-xs mx-auto">
-        <li class="flex items-center gap-2"><span class="text-green-500">✓</span>自筆証書遺言の下書き（あなた専用）</li>
-        <li class="flex items-center gap-2"><span class="text-green-500">✓</span>相続税ざっくり試算</li>
-        <li class="flex items-center gap-2"><span class="text-green-500">✓</span>PDF保存（事務所名入り）</li>
-        <li class="flex items-center gap-2"><span class="text-green-500">✓</span>準備チェックリスト</li>
-      </ul>
-      <div class="text-center">
-        <button onclick="openPremGate()" class="btn-gold">🔓 詳細結果＋下書きを確認する</button>
+    <div class="q-block">
+      <div class="q-label">👫 配偶者（夫または妻）はいますか？</div>
+      <div class="radio-row">
+        <div class="radio-btn" onclick="selectRadio('spouse','yes',this)">いる（存命）</div>
+        <div class="radio-btn" onclick="selectRadio('spouse','dead',this)">亡くなっている</div>
+        <div class="radio-btn" onclick="selectRadio('spouse','no',this)">いない（未婚・離別）</div>
       </div>
     </div>
 
-    <div class="text-center pb-4">
-      <button onclick="showScreen('screen-top')" class="text-sm text-gray-400 underline">トップに戻る</button>
+    <div class="q-block">
+      <div class="q-label">👧 子どもは何人いますか？</div>
+      <div class="radio-row">
+        <div class="radio-btn" onclick="selectRadio('children','0',this)">いない</div>
+        <div class="radio-btn" onclick="selectRadio('children','1',this)">1人</div>
+        <div class="radio-btn" onclick="selectRadio('children','2',this)">2人</div>
+        <div class="radio-btn" onclick="selectRadio('children','3+',this)">3人以上</div>
+      </div>
     </div>
+
+    <div class="q-block">
+      <div class="q-label">👨‍👩‍👦 前の配偶者との子どもはいますか？</div>
+      <div class="radio-row">
+        <div class="radio-btn" onclick="selectRadio('prevchild','yes',this)">いる</div>
+        <div class="radio-btn" onclick="selectRadio('prevchild','no',this)">いない</div>
+      </div>
+    </div>
+
+    <div class="q-block">
+      <div class="q-label">🌟 相続人以外（友人・団体など）に渡したい人はいますか？</div>
+      <div class="radio-row">
+        <div class="radio-btn" onclick="selectRadio('thirdparty','yes',this)">いる・ある</div>
+        <div class="radio-btn" onclick="selectRadio('thirdparty','no',this)">いない</div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-back" onclick="goStep(1)">← 戻る</button>
+      <button class="btn-next" id="btn2" onclick="goStep(3)" disabled>次へ　→</button>
+    </div>
+  </div>
+
+  <!-- STEP3: 財産 -->
+  <div class="step-card" id="step3">
+    <div class="step-head">
+      <div class="step-num">STEP 3</div>
+      <div class="step-title">財産の種類を<br>すべて選んでください</div>
+      <div class="step-desc">複数選択OK。だいたいで構いません。</div>
+    </div>
+    <div class="choices-grid">
+      <div class="grid-card" onclick="toggleAsset('land',this)"><div class="grid-badge">✓</div><div class="grid-icon">🏠</div><div class="grid-label">土地・建物</div><div class="grid-sub">不動産全般</div></div>
+      <div class="grid-card" onclick="toggleAsset('farm',this)"><div class="grid-badge">✓</div><div class="grid-icon">🌾</div><div class="grid-label">農地・山林</div><div class="grid-sub">田畑・山・森</div></div>
+      <div class="grid-card" onclick="toggleAsset('bank',this)"><div class="grid-badge">✓</div><div class="grid-icon">🏦</div><div class="grid-label">預貯金・現金</div><div class="grid-sub">銀行・郵便局</div></div>
+      <div class="grid-card" onclick="toggleAsset('stock',this)"><div class="grid-badge">✓</div><div class="grid-icon">📈</div><div class="grid-label">株・投資信託</div><div class="grid-sub">有価証券全般</div></div>
+      <div class="grid-card" onclick="toggleAsset('insurance',this)"><div class="grid-badge">✓</div><div class="grid-icon">🛡️</div><div class="grid-label">生命保険</div><div class="grid-sub">死亡保険金</div></div>
+      <div class="grid-card" onclick="toggleAsset('goods',this)"><div class="grid-badge">✓</div><div class="grid-icon">🚗</div><div class="grid-label">車・貴金属・美術品</div><div class="grid-sub">動産全般</div></div>
+      <div class="grid-card" onclick="toggleAsset('business',this)"><div class="grid-badge">✓</div><div class="grid-icon">🏢</div><div class="grid-label">会社・事業・自社株</div><div class="grid-sub">事業承継</div></div>
+      <div class="grid-card" onclick="toggleAsset('debt',this)"><div class="grid-badge">✓</div><div class="grid-icon">📋</div><div class="grid-label">借金・ローン</div><div class="grid-sub">マイナスの財産</div></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-back" onclick="goStep(2)">← 戻る</button>
+      <button class="btn-next" id="btn3" onclick="goStep(4)" disabled>次へ　→</button>
+    </div>
+  </div>
+
+  <!-- STEP4: 遺言書の種類 -->
+  <div class="step-card" id="step4">
+    <div class="step-head">
+      <div class="step-num">STEP 4</div>
+      <div class="step-title">どの遺言書を<br>作りたいですか？</div>
+      <div class="step-desc">作成方法によって手続きが異なります。</div>
+    </div>
+    <div class="choices">
+      <div class="choice-card" onclick="selectOne('willtype','jihitsu',this)">
+        <div class="choice-icon">✍️</div>
+        <div class="choice-text">
+          <div class="choice-title">自筆証書遺言（自分で書く）</div>
+          <div class="choice-sub">費用ほぼ無料。全文を自筆で書く。法務局への保管推奨。手軽だが形式ミスに注意。</div>
+        </div>
+        <div class="choice-check">✓</div>
+      </div>
+      <div class="choice-card" onclick="selectOne('willtype','kosho',this)">
+        <div class="choice-icon">🏛️</div>
+        <div class="choice-text">
+          <div class="choice-title">公正証書遺言（公証役場で作る）</div>
+          <div class="choice-sub">最も確実。公証人が作成。費用3万〜10万円。証人2名が必要。改ざん・紛失リスクなし。</div>
+        </div>
+        <div class="choice-check">✓</div>
+      </div>
+      <div class="choice-card" onclick="selectOne('willtype','unsure',this)">
+        <div class="choice-icon">🤔</div>
+        <div class="choice-text">
+          <div class="choice-title">どちらか迷っている</div>
+          <div class="choice-sub">AIが状況に合わせておすすめを提案します。</div>
+        </div>
+        <div class="choice-check">✓</div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-back" onclick="goStep(3)">← 戻る</button>
+      <button class="btn-next" id="btn4" onclick="goToResult()" disabled>遺言書を生成する　→</button>
+    </div>
+  </div>
+
+  <!-- STEP5: 結果 -->
+  <div class="step-card" id="step5">
+    <div id="resultContent"></div>
+    <button class="btn-restart" onclick="restart()">🔄 最初からやり直す</button>
+  </div>
+
+</div>
+
+<!-- PAYWALL -->
+<div class="paywall-overlay" id="paywallOverlay">
+  <div class="paywall-card">
+    <div class="paywall-title">📜 無料体験が終了しました</div>
+    <div class="paywall-sub">引き続きご利用いただくには<br>遺言書みっけをご購入ください。</div>
+    <div class="paywall-price">
+      <div class="paywall-price-num">¥4,980</div>
+      <div class="paywall-price-unit">買い切り（税込・永久利用可）</div>
+    </div>
+    <ul class="paywall-features">
+      <li>遺言書ドラフトを何度でも生成できる</li>
+      <li>AIアドバイザーに無制限で相談できる</li>
+      <li>家族構成・財産内容を変えて何度でも試せる</li>
+      <li>自筆証書・公正証書どちらにも対応</li>
+      <li>ダウンロード・コピーして使える</li>
+    </ul>
+    <button class="btn-stripe" onclick="openStripe()">💳 今すぐ購入する（¥4,980）</button>
+    <div class="paywall-pass-row">
+      <input type="password" class="paywall-pass-input" id="passInput" placeholder="パスワードをお持ちの方はこちら">
+      <button class="btn-pass" onclick="checkPass()">解除</button>
+    </div>
+    <div class="paywall-err" id="passErr"></div>
   </div>
 </div>
 
-<!-- ========== PREMIUM ========== -->
-<div id="screen-premium" class="screen">
-  <header class="grad text-white no-print">
-    <div class="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
-      <span class="serif font-bold cursor-pointer" onclick="showScreen('screen-top')">遺言書みっけ</span>
-      <span class="text-sm opacity-65">詳細結果</span>
-    </div>
-  </header>
+<!-- TRIAL BANNER -->
+<div class="trial-banner" id="trialBanner">
+  <div class="trial-banner-inner" id="trialBannerInner"></div>
+</div>
 
-  <!-- Print header -->
-  <div class="print-show" style="text-align:center;padding:24px 24px 16px;border-bottom:2px solid #225AD3;">
-    <h1 style="font-size:22px;color:#225AD3;font-family:'Noto Serif JP',serif;margin-bottom:6px;">遺言書みっけ ｜ 診断結果レポート</h1>
-    <p id="prt-firm" style="font-size:13px;color:#666;"></p>
-    <p id="prt-date" style="font-size:12px;color:#999;margin-top:4px;"></p>
-  </div>
-
-  <div class="max-w-2xl mx-auto px-4 py-6 space-y-4">
-    <div class="card text-center" style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fcd34d;">
-      <p class="text-xs text-amber-700 font-medium mb-1">✨ プレミアムコンテンツ</p>
-      <p id="p-firm-sub" class="text-sm text-gray-600"></p>
-    </div>
-
-    <div class="card">
-      <p class="text-xs text-gray-400 mb-1">診断タイプ</p>
-      <div id="p-badge" class="badge mb-2"></div>
-      <h2 id="p-title" class="serif text-xl font-bold text-gray-800 mb-2"></h2>
-      <p id="p-detail" class="text-sm text-gray-600 leading-relaxed"></p>
-    </div>
-
-    <div id="p-will-card" class="card relative">
-      <div class="flex flex-wrap gap-2 items-center justify-between mb-1">
-        <h3 class="serif font-bold text-gray-800 flex items-center gap-2">📄 遺言書下書き（自筆証書遺言）</h3>
-        <button id="p-word-btn" onclick="downloadWord()" class="btn-sub text-xs py-1.5 px-3 no-print flex items-center gap-1" style="border-width: 1px; padding: 6px 12px; font-size: 13px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
-          Wordで保存
-        </button>
-      </div>
-      <p class="text-xs text-gray-400 mb-4">※参考用の下書きです。法的有効性は専門家にご確認ください。</p>
-      <div id="p-will" class="will-box"></div>
-    </div>
-
-    <!-- ライト版向け：下書きはPro版で見られる案内カード -->
-    <div id="p-will-lite-cta" class="card no-print" style="display:none;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fcd34d;">
-      <h3 class="serif font-bold text-gray-800 mb-2 flex items-center gap-2">📄 遺言書下書き（自筆証書遺言）</h3>
-      <p class="text-sm text-gray-700 leading-relaxed mb-3">
-        あなた専用の遺言書下書き全文と<strong>Word形式での保存</strong>は、<br>
-        <strong>Pro版（買い切り 2,980円）</strong>でご利用いただけます。
-      </p>
-      <button onclick="goToStripe()" class="btn-gold" style="width:100%;max-width:280px;display:block;margin:0 auto;">👑 Pro版にアップグレード</button>
-    </div>
-
-    <div class="card">
-      <h3 class="font-bold text-gray-800 mb-3">💴 相続税ざっくり試算</h3>
-      <div id="p-tax"></div>
-      <p class="text-xs text-gray-400 mt-3">※簡易試算です。正確な税額は税理士にご確認ください。</p>
-    </div>
-
-    <div id="p-checklist-card" class="card">
-      <h3 class="font-bold text-gray-800 mb-3">✅ 今後の準備チェックリスト</h3>
-      <div id="p-checklist"></div>
-    </div>
-
-    <div class="card no-print" style="background:#225AD3;color:#fff;text-align:center;">
-      <p class="text-sm opacity-85 mb-1">より正確な遺言書作成・相続税対策のご相談は</p>
-      <p id="p-firm-cta" class="font-bold text-lg mb-2"></p>
-      <p class="text-xs opacity-70">ご相談はお気軽にどうぞ</p>
-    </div>
-
-    <div class="text-center space-y-3 pb-6 no-print">
-      <button onclick="downloadPDF()" class="btn-main w-full max-w-sm">🖨️ PDFで保存する</button>
-      <br>
-      <button onclick="showScreen('screen-result')" class="btn-sub">← 診断結果に戻る</button>
-    </div>
-
-    <!-- Print CTA (print only) -->
-    <div class="print-show" style="margin-top:24px;padding:16px;border:1px solid #225AD3;border-radius:12px;text-align:center;">
-      <p style="font-size:13px;color:#225AD3;font-weight:700;" id="prt-firm-cta"></p>
-      <p style="font-size:12px;color:#666;margin-top:4px;">遺言書作成・相続税対策のご相談はお気軽にどうぞ</p>
-    </div>
-  </div>
+<div class="footer">
+  遺言書みっけ｜Smile Plus Consulting　©2025 SPC<br>
+  考えるを、ひとりにしない。<br>
+  ※このアプリが生成する文章はあくまでもたたき台・ドラフトです。必ず専門家にご確認ください。
 </div>
 
 <script>
-// ========== STATE ==========
-const S = {
-  q: 0,
-  ans: {},
-  sel: null,
-  score: 0,
-  type: '',
-  firm: '',
-  usageCount: 0,
-  liteUnlocked: false,
-  proUnlocked: false
-};
+// ===== CONFIG =====
+const API_ENDPOINT = 'https://yuigon-mikke-api.yymmatsu.workers.dev';
+const STRIPE_URL   = 'https://buy.stripe.com/cNi00i0Yi83b6SP9J2cV20U';
+const UNLOCK_PASS  = 'yuigon2026';
+const FREE_LIMIT   = 3;
+const LS_KEY       = 'yuigon_mikke_uses';
+const LS_UNLOCKED  = 'yuigon_mikke_pro';
 
-// ========== CONFIG ==========
-const FREE_LIMIT     = 3;
-const LITE_PASSWORD  = 'yuigon980';
-const PRO_PASSWORD   = 'yuigon2026';
-const NOTE_URL       = '【リンク】';  // ★ ライト版のnote販売ページURLに差し替えてください
-const STRIPE_URL     = 'https://buy.stripe.com/fZu28qgXgdnvgtpaN6cV20L';
-const LS_USAGE       = 'yuigon_usage_count';
-const LS_LITE        = 'yuigon_lite_unlocked';
-const LS_UNLOCK      = 'yuigon_pro_unlocked';
+// ===== STATE =====
+const S = { reason:null, spouse:null, children:null, prevchild:null, thirdparty:null, assets:[], willtype:null };
+let chatHistory = [];
+let generatedDraft = '';
+let useCount = parseInt(localStorage.getItem(LS_KEY) || '0');
+let isUnlocked = localStorage.getItem(LS_UNLOCKED) === 'true';
 
-// ========== QUESTIONS ==========
-const QS = [
-  { id:'q1',  icon:'👫', text:'配偶者（ご結婚されているパートナー）はいらっしゃいますか？', opts:['はい','いいえ'] },
-  { id:'q2',  icon:'👨‍👩‍👧', text:'お子様はいらっしゃいますか？', opts:['はい（1人）','はい（2人以上）','いいえ'] },
-  { id:'q3',  icon:'🏠', text:'不動産（土地・建物・マンション等）を所有していますか？', opts:['はい（複数）','はい（1件）','いいえ'] },
-  { id:'q4',  icon:'🏢', text:'ご自身が経営する会社の株式（自社株）をお持ちですか？', opts:['はい','いいえ','会社は経営していない'] },
-  { id:'q5',  icon:'💳', text:'借入金・ローン・連帯保証などがありますか？', opts:['はい（多い）','はい（少し）','いいえ'] },
-  { id:'q6',  icon:'💍', text:'前の婚姻歴がある、または他の方との間にお子様はいますか？', opts:['はい','いいえ'] },
-  { id:'q7',  icon:'🤲', text:'介護・看病など、特にお世話になった方（家族以外も含む）はいますか？', opts:['はい','いいえ'] },
-  { id:'q8',  icon:'💝', text:'特定の方に多めに財産を渡したいというお気持ちはありますか？', opts:['はい','いいえ'] },
-  { id:'q9',  icon:'🌏', text:'社会貢献・寄付・特定の団体への遺贈などをご希望ですか？', opts:['はい','いいえ','まだわからない'] },
-  { id:'q10', icon:'📜', text:'現在、遺言書（公正証書・自筆証書など）はすでにお持ちですか？', opts:['はい（最近作成）','はい（かなり前）','いいえ'] },
-  { id:'q11', icon:'😟', text:'相続について、ご家族間で揉める可能性や不安はありますか？', opts:['かなり不安','少し不安','あまりない'] },
-  { id:'q12', icon:'🔄', text:'事業承継（会社・店・農地など）の方針は決まっていますか？', opts:['決まっている','まだ決まっていない','事業はない'] }
-];
-
-// ========== INIT ==========
-window.addEventListener('DOMContentLoaded', () => {
-  const p = new URLSearchParams(location.search);
-  S.firm    = p.get('firm') || '';
-  if (S.firm) {
-    document.getElementById('hdr-firm').textContent = S.firm;
-    document.getElementById('ftr-firm').textContent = S.firm;
-  }
-  loadProState();
-});
-
-// ========== NAV ==========
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  window.scrollTo(0, 0);
-}
-function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-// ========== QUIZ ==========
-function startQuiz() {
-  S.q = 0; S.ans = {}; S.sel = null;
-  showScreen('screen-quiz');
-  renderQ();
+// ===== NAV =====
+function goStep(n) {
+  document.querySelectorAll('.step-card').forEach(el => el.classList.remove('active'));
+  document.getElementById('step' + n).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  const pw = document.getElementById('progressWrap');
+  pw.style.display = n >= 1 ? 'block' : 'none';
+  if (n >= 1) updateProgress(n);
 }
 
-function renderQ() {
-  const q   = QS[S.q];
-  const tot = QS.length;
-  const pct = Math.round((S.q / tot) * 100);
-  document.getElementById('q-label').textContent = `質問 ${S.q + 1} / ${tot}`;
-  document.getElementById('q-pct').textContent   = `${pct}%`;
-  document.getElementById('q-bar').style.width   = `${pct}%`;
-  document.getElementById('q-num').textContent   = S.q + 1;
-  document.getElementById('q-text').textContent  = `${q.icon} ${q.text}`;
-  S.sel = S.ans[q.id] !== undefined ? S.ans[q.id] : null;
-  const opts = document.getElementById('q-opts');
-  opts.innerHTML = '';
-  q.opts.forEach((o, i) => {
-    const b = document.createElement('button');
-    b.className = 'opt-btn' + (S.sel === i ? ' chosen' : '');
-    b.textContent = o;
-    b.onclick = () => pick(i);
-    
-    // 選択肢が上から順に時間差で現れるアニメーション
-    b.style.opacity = '0';
-    b.style.animation = `fadeUp 0.4s ease forwards ${i * 0.08 + 0.15}s`;
-    
-    opts.appendChild(b);
-  });
-  const nb = document.getElementById('btn-next');
-  nb.disabled = S.sel === null;
-  nb.textContent = S.q === tot - 1 ? '診断結果を見る ✓' : '次へ →';
-  const pb = document.getElementById('btn-prev');
-  pb.classList.toggle('hidden', S.q === 0);
-  
-  const card = document.getElementById('quiz-card');
-  card.classList.remove('fade-up'); void card.offsetWidth; card.classList.add('fade-up');
-
-  // 質問番号アイコンのアニメーション再トリガー
-  const qNum = document.getElementById('q-num');
-  qNum.classList.remove('pop-in'); void qNum.offsetWidth; qNum.classList.add('pop-in');
-}
-
-function pick(i) {
-  S.sel = i;
-  S.ans[QS[S.q].id] = i;
-  document.querySelectorAll('.opt-btn').forEach((b, j) => b.classList.toggle('chosen', j === i));
-  document.getElementById('btn-next').disabled = false;
-}
-function goNext() { S.sel === null ? null : (S.q < QS.length - 1 ? (S.q++, renderQ()) : finish()); }
-function goPrev() { if (S.q > 0) { S.q--; renderQ(); } }
-
-// ========== SCORING ==========
-function calcScore() {
-  const a = S.ans;
-  let s = 0;
-  if (a.q1 === 1) s += 1;                       // no spouse
-  if (a.q2 === 0) s += 1; if (a.q2 === 1) s += 2;  // 1 child, 2+ children
-  if (a.q3 === 0) s += 3; if (a.q3 === 1) s += 2;  // real estate
-  if (a.q4 === 0) s += 3;                        // company stock
-  if (a.q5 === 0) s += 2; if (a.q5 === 1) s += 1;  // debt
-  if (a.q6 === 0) s += 3;                        // prev marriage
-  if (a.q7 === 0) s += 2;                        // carer
-  if (a.q8 === 0) s += 2;                        // specific wish
-  if (a.q10 === 0) s -= 3; if (a.q10 === 1) s -= 1; // existing will
-  if (a.q11 === 0) s += 3; if (a.q11 === 1) s += 1; // dispute risk
-  if (a.q12 === 1) s += 2;                       // succession undecided
-  return Math.max(0, s);
-}
-function typeOf(sc) { return sc >= 10 ? 'A' : sc >= 6 ? 'B' : sc >= 3 ? 'C' : 'D'; }
-
-// ========== RESULT DATA ==========
-const RD = {
-  A: {
-    badge:'タイプA：今すぐ作成を', cls:'badge-a',
-    title:'遺言書は今すぐ作成すべきです',
-    desc:'複数のリスク要因が重なっています。遺言書がなければご家族が大変な思いをする可能性が高い状態です。早急に専門家にご相談ください。',
-    detail:'不動産・事業・家族関係が絡み合うほど遺言書の重要性は増します。自筆証書遺言でも効力はありますが、公正証書遺言を強くお勧めします。'
-  },
-  B: {
-    badge:'タイプB：早めの準備を', cls:'badge-b',
-    title:'早めの準備をお勧めします',
-    desc:'遺言書が必要となる可能性が高い状況です。今すぐ緊急ではないかもしれませんが、早めに専門家に相談して準備を始めることをお勧めします。',
-    detail:'いくつかの要注意ポイントが確認されました。今は元気でも、いざというときに家族が困らないよう早めに動きましょう。まず下書きを作り、専門家に確認してもらうのが最短ルートです。'
-  },
-  C: {
-    badge:'タイプC：時期を見て準備', cls:'badge-c',
-    title:'時期を見て準備することをお勧めします',
-    desc:'現時点でのリスクは比較的低い状況です。ただし「書いてよかった」という声は皆さん口を揃えておっしゃいます。来年中を目途に準備を始めてみてはいかがでしょうか。',
-    detail:'大きなリスク要因は少ないものの、遺言書は早い段階で準備しておくことが家族への思いやりになります。エンディングノートと並行して進めましょう。'
-  },
-  D: {
-    badge:'タイプD：エンディングノートから', cls:'badge-d',
-    title:'まずエンディングノートから始めましょう',
-    desc:'現時点では遺言書の緊急性は低い状況です。まずはエンディングノートで自分の希望や家族へのメッセージを書き留めることから始めてみてはいかがでしょうか。',
-    detail:'現在のお状況では複雑な相続リスクは少ない状態です。まずエンディングノートで大切な情報を整理し、数年後に改めて遺言書を検討されることをお勧めします。'
-  }
-};
-
-function getIssues() {
-  const a = S.ans; const list = [];
-  if (a.q3 === 0 || a.q3 === 1) list.push({i:'🏠', t:'不動産の分割問題', d:'不動産は現金と違い分けにくいため、遺言で明確に指定しておくことが重要です。'});
-  if (a.q4 === 0) list.push({i:'🏢', t:'事業承継・自社株の問題', d:'自社株を誰に引き継ぐかが不明確だと、会社の経営が混乱する恐れがあります。'});
-  if (a.q6 === 0) list.push({i:'⚠️', t:'前婚の子・認知されていない相続人', d:'前婚のお子様は法定相続人です。遺言書がないと複雑な手続きが必要になります。'});
-  if (a.q5 === 0) list.push({i:'💳', t:'負債・連帯保証の承継リスク', d:'借入金や連帯保証は相続の対象になります。相続人が知らずに引き継ぐリスクがあります。'});
-  if (a.q11 === 0 || a.q11 === 1) list.push({i:'😟', t:'相続トラブルのリスク', d:'相続争いは遺言書があれば大幅に減らせます。争いになると弁護士費用だけで数百万になるケースも。'});
-  if (a.q7 === 0) list.push({i:'🤲', t:'貢献してくれた方への感謝を形に', d:'お世話になった方への遺贈は、遺言書でのみ確実に実現できます。'});
-  if (a.q8 === 0) list.push({i:'💝', t:'特定の方への配分希望', d:'法定相続分と異なる分配は、遺言書でのみ有効に指定できます。'});
-  if (a.q12 === 1) list.push({i:'🔄', t:'事業承継方針が未決定', d:'後継者が決まっていないと、相続時に会社経営に支障をきたす恐れがあります。'});
-  if (a.q10 === 1) list.push({i:'📜', t:'古い遺言書の更新が必要', d:'かなり前に作成した遺言書は、現在の家族構成・財産状況と合っていない可能性があります。'});
-  return list.slice(0, 4);
-}
-
-function getSteps(t) {
-  return {
-    A:[{i:'📞',t:'今週中に税理士・弁護士に相談のアポを取る'},{i:'📋',t:'財産目録（不動産・預金・株式の一覧）を作成する'},{i:'✍️',t:'家族への想いをメモ書きでまとめておく'}],
-    B:[{i:'📅',t:'3ヶ月以内に専門家に相談する'},{i:'📋',t:'財産の棚卸し（何がどこにあるか）をメモする'},{i:'📖',t:'エンディングノートと並行して進める'}],
-    C:[{i:'📖',t:'まずエンディングノートを書いてみる'},{i:'📅',t:'来年中を目途に専門家に相談する'},{i:'👨‍👩‍👧',t:'家族で相続について話し合う機会を設ける'}],
-    D:[{i:'📖',t:'エンディングノートで大切な情報を整理する'},{i:'👨‍👩‍👧',t:'家族に預金口座・保険の場所を伝えておく'},{i:'📅',t:'3〜5年後に改めて見直す予定を立てる'}]
-  }[t];
-}
-
-// ========== WILL DRAFT ==========
-function makeWill() {
-  const a = S.ans;
-  const dt = new Date();
-  const ds = `${dt.getFullYear()}年${dt.getMonth()+1}月${dt.getDate()}日`;
-  let w = `自筆証書遺言\n\n━━━━━━━━━━━━━━━━━\n　　遺　言　書\n━━━━━━━━━━━━━━━━━\n\n私【氏名】は、以下のとおり遺言する。\n\n`;
-  let art = 1;
-  if (a.q3 === 0 || a.q3 === 1) {
-    w += `第${art++}条（不動産について）\n　私が所有する不動産（土地・建物）については、\n　【相続人氏名】に相続させる。\n　所在地・地番等の詳細は財産目録のとおり。\n\n`;
-  }
-  if (a.q4 === 0) {
-    w += `第${art++}条（事業承継・自社株について）\n　私が保有する【会社名】の株式すべてを、\n　後継者【後継者氏名】に相続させる。\n　なお、会社の経営は【後継者氏名】が引き継ぐことを強く希望する。\n\n`;
-  }
-  if (a.q1 === 0) {
-    w += `第${art++}条（配偶者について）\n　配偶者【配偶者氏名】に対し、以下を相続させる。\n　・預貯金の　　　割\n　・居住用不動産（自宅）\n　配偶者の生活が安定するよう、十分な財産を確保すること。\n\n`;
-  }
-  if (a.q7 === 0) {
-    w += `第${art++}条（特別の貢献をしてくださった方への感謝）\n　長年にわたりお世話になった【氏名・関係】に対し、\n　感謝の気持ちとして金【　　　】万円を遺贈する。\n\n`;
-  }
-  if (a.q8 === 0) {
-    w += `第${art++}条（特定の相続人への配慮）\n　【相続人氏名】には、特に多くの財産を相続させることを希望する。\n　理由：【理由を記載してください】\n\n`;
-  }
-  if (a.q9 === 0) {
-    w += `第${art++}条（遺贈・寄付について）\n　【団体名・用途】に対し、遺産の一部（金【　　　】万円）を寄付する。\n\n`;
-  }
-  w += `第${art++}条（遺言執行者）\n　この遺言の執行者として、【遺言執行者氏名】を指定する。\n\n`;
-  w += `第${art++}条（付言事項）\n　家族へのメッセージ：\n　【ここに家族へのメッセージをお書きください】\n\n　皆が仲良く、助け合って生きていくことを願っています。\n\n`;
-  w += `━━━━━━━━━━━━━━━━━\n　　${ds}\n\n　住所：【住所】\n\n　氏名：【氏名】（署名）\n━━━━━━━━━━━━━━━━━\n\n※【　】内は実際の情報に書き換えてください\n※この下書きをもとに、必ず専門家にご確認ください`;
-  return w;
-}
-
-// ========== TAX ESTIMATE ==========
-function makeTax() {
-  const a = S.ans;
-  const hasSpouse = a.q1 === 0;
-  const kids = a.q2 === 0 ? 1 : (a.q2 === 1 ? 2 : 0);
-  const heirs = (hasSpouse ? 1 : 0) + kids;
-  const ded = 3000 + 600 * heirs;
-  let h = `<div style="background:#eff6ff;border-radius:12px;padding:16px;margin-bottom:12px;">
-    <p style="font-weight:700;color:#1e40af;margin-bottom:6px;">📊 基礎控除額の目安</p>
-    <p style="font-size:24px;font-weight:900;color:#1d4ed8;">${ded.toLocaleString()}万円</p>
-    <p style="font-size:11px;color:#6b7280;margin-top:4px;">= 3,000万円 ＋ 600万円 × ${heirs}人（法定相続人）</p>
-  </div><div style="font-size:13px;line-height:2;color:#374151;">`;
-  h += `<p>💡 <strong>課税対象</strong>：基礎控除額を超える遺産に相続税が課税されます</p>`;
-  if (a.q3 !== 2) h += `<p>🏠 <strong>不動産</strong>：小規模宅地等の特例で最大80%評価減の可能性</p>`;
-  if (a.q4 === 0) h += `<p>🏢 <strong>自社株</strong>：事業承継税制（特例）を使えば相続税が猶予・免除になる場合も</p>`;
-  if (hasSpouse) h += `<p>👫 <strong>配偶者の税額軽減</strong>：1億6,000万円または法定相続分まで非課税</p>`;
-  h += `</div><div style="margin-top:12px;padding:12px;background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;">
-    <p style="font-size:12px;color:#b45309;font-weight:700;">⚠️ 正確な試算のために</p>
-    <p style="font-size:12px;color:#92400e;margin-top:4px;">財産の詳細（不動産の評価額・預金・株式など）をもとに、税理士に相談することで節税対策を含めた正確なシミュレーションができます。</p>
-  </div>`;
-  return h;
-}
-
-// ========== CHECKLIST ==========
-function makeChecklist() {
-  const a = S.ans;
-  const items = [
-    {t:'財産目録を作成する（不動産・預金・株式・保険）', done:false},
-    {t:'通帳・権利証などの保管場所を家族に伝える', done:false},
-    {t:'遺言書の下書きを完成させる', done:false},
-    {t:'税理士・弁護士に相談する', done:false},
-  ];
-  if (a.q4 === 0) items.push({t:'事業承継計画を専門家と相談する', done:false});
-  if (a.q3 !== 2) items.push({t:'不動産の評価額を確認する（固定資産税評価証明書）', done:false});
-  if (a.q10 === 0) items.push({t:'既存の遺言書の内容を定期的に見直す', done:true});
-  if (a.q10 === 1) items.push({t:'古い遺言書を見直して更新する', done:false});
-  if (a.q9 === 0) items.push({t:'遺贈したい団体の口座情報を確認する', done:false});
-  return items.map(it => `
-    <label style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #f3f4f6;cursor:pointer;">
-      <input type="checkbox" ${it.done?'checked':''} style="margin-top:3px;width:16px;height:16px;accent-color:#225AD3;flex-shrink:0;">
-      <span style="font-size:13px;color:${it.done?'#9ca3af':'#374151'};${it.done?'text-decoration:line-through;':''}">${it.t}</span>
-    </label>`).join('');
-}
-
-// ========== FINISH QUIZ ==========
-function finish() {
-  // 診断完了でカウント +1（Pro版未解放のみ）
-  if (!S.proUnlocked) {
-    S.usageCount++;
-    localStorage.setItem(LS_USAGE, String(S.usageCount));
-  }
-  S.score = calcScore();
-  S.type  = typeOf(S.score);
-  renderResult();
-  updateUsageBanner();
-  showScreen('screen-result');
-}
-
-function renderResult() {
-  const d = RD[S.type];
-  const rb = document.getElementById('r-badge');
-  rb.textContent = d.badge; rb.className = `badge ${d.cls}`;
-  document.getElementById('r-title').textContent = d.title;
-  document.getElementById('r-desc').textContent  = d.desc;
-  const iss = getIssues();
-  document.getElementById('r-issues').innerHTML = iss.length
-    ? iss.map(x=>`<div class="issue-line"><p class="font-bold text-gray-800 text-sm">${x.i} ${x.t}</p><p class="text-xs text-gray-600 mt-1 leading-relaxed">${x.d}</p></div>`).join('')
-    : '<p class="text-sm text-gray-400">特に大きなリスク要因は確認されませんでした。</p>';
-  document.getElementById('r-steps').innerHTML = getSteps(S.type).map(s=>`
-    <div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid #f3f4f6;">
-      <span style="font-size:20px;">${s.i}</span>
-      <p style="font-size:14px;color:#374151;line-height:1.6;">${s.t}</p>
-    </div>`).join('');
-}
-
-// ========== PREMIUM ==========
-function openPremGate() {
-  const plan = getActivePlan();
-  // Pro版またはライト版解放済み：そのまま詳細画面へ
-  if (plan === 'pro' || plan === 'lite') {
-    renderPremium();
-    showScreen('screen-premium');
-    return;
-  }
-  // 無料体験回数内：詳細画面へ（カウント増加なし。診断完了時に既に +1 済み）
-  if (S.usageCount <= FREE_LIMIT) {
-    renderPremium();
-    showScreen('screen-premium');
-    return;
-  }
-  // 4回目以降：アップグレードモーダル
-  showUpgradeModal();
-}
-
-function renderPremium() {
-  const d = RD[S.type];
-  const firm = S.firm || 'Smart Solutions / SPC';
-  const pb = document.getElementById('p-badge');
-  pb.textContent = d.badge; pb.className = `badge ${d.cls}`;
-  document.getElementById('p-title').textContent   = d.title;
-  document.getElementById('p-detail').textContent  = d.detail;
-  document.getElementById('p-firm-sub').textContent = S.firm ? `提供：${S.firm}` : '';
-  document.getElementById('p-firm-cta').textContent = firm;
-  document.getElementById('prt-firm').textContent   = firm;
-  document.getElementById('prt-firm-cta').textContent = firm;
-  document.getElementById('prt-date').textContent   = `作成日：${new Date().toLocaleDateString('ja-JP')}`;
-  document.getElementById('p-will').textContent     = makeWill();
-  document.getElementById('p-tax').innerHTML        = makeTax();
-  document.getElementById('p-checklist').innerHTML  = makeChecklist();
-
-  // ★ プラン別の表示制御
-  applyPlanVisibility();
-}
-
-// プラン別の表示制御（プレミアム画面）
-function applyPlanVisibility() {
-  const plan = getActivePlan();
-  const willCard      = document.getElementById('p-will-card');       // 下書き本体カード
-  const willLiteCta   = document.getElementById('p-will-lite-cta');   // ライト版用CTAカード
-  const checklistCard = document.getElementById('p-checklist-card'); // チェックリスト
-  const wordBtn       = document.getElementById('p-word-btn');        // Word出力ボタン
-
-  if (plan === 'pro') {
-    // Pro版：すべて表示
-    if (willCard)      willCard.style.display      = '';
-    if (willLiteCta)   willLiteCta.style.display   = 'none';
-    if (checklistCard) checklistCard.style.display = '';
-    if (wordBtn)       wordBtn.style.display       = '';
-  } else if (plan === 'lite') {
-    // ライト版：下書き本体・Wordボタン・チェックリストを非表示、CTAカード表示
-    if (willCard)      willCard.style.display      = 'none';
-    if (willLiteCta)   willLiteCta.style.display   = '';
-    if (checklistCard) checklistCard.style.display = 'none';
-  } else {
-    // 無料お試し：すべて見られる（4回目以降はモーダルで止まっているのでここには来ない）
-    if (willCard)      willCard.style.display      = '';
-    if (willLiteCta)   willLiteCta.style.display   = 'none';
-    if (checklistCard) checklistCard.style.display = '';
-    if (wordBtn)       wordBtn.style.display       = '';
+function updateProgress(n) {
+  for (let i = 1; i <= 5; i++) {
+    const dot = document.getElementById('pd' + i);
+    const lbl = document.getElementById('pl' + i);
+    if (i < n) { dot.className = 'prog-dot done'; dot.textContent = '✓'; lbl.className = 'prog-lbl'; }
+    else if (i === n) { dot.className = 'prog-dot active'; dot.textContent = i; lbl.className = 'prog-lbl active'; }
+    else { dot.className = 'prog-dot'; dot.textContent = i; lbl.className = 'prog-lbl'; }
+    if (i <= 4) document.getElementById('pline' + i).className = 'prog-line' + (i < n ? ' done' : '');
   }
 }
 
-// ========== WORD EXPORT ==========
-function downloadWord() {
-  if (typeof docx === 'undefined') {
-    alert('Word出力機能の読み込みに失敗しました。通信環境を確認してページを再読み込みしてください。');
-    return;
-  }
-  const willText = document.getElementById('p-will').innerText;
-  const { Document, Packer, Paragraph, TextRun } = docx;
-
-  const paragraphs = willText.split('\n').map(line => {
-    return new Paragraph({
-      children: [new TextRun({ text: line, font: "ＭＳ 明朝", size: 24 })], // size 24 = 12pt
-    });
-  });
-
-  const doc = new Document({
-    sections: [{
-      properties: {},
-      children: paragraphs
-    }]
-  });
-
-  Packer.toBlob(doc).then(blob => {
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = '遺言書下書き.docx';
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-    setTimeout(() => {
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    }, 100);
-  }).catch(err => {
-    console.error(err);
-    alert('Wordファイルの作成中にエラーが発生しました。');
-  });
+// ===== SELECTIONS =====
+function selectOne(key, val, el) {
+  el.closest('.choices').querySelectorAll('.choice-card').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  S[key] = val;
+  const map = { reason:'btn1', willtype:'btn4' };
+  if (map[key]) document.getElementById(map[key]).disabled = false;
 }
 
-// ========== PRO STATE / UPGRADE / UNLOCK ==========
-function loadProState() {
-  S.usageCount   = parseInt(localStorage.getItem(LS_USAGE) || '0', 10);
-  S.liteUnlocked = localStorage.getItem(LS_LITE) === 'true';
-  S.proUnlocked  = localStorage.getItem(LS_UNLOCK) === 'true';
-  updateProBadge();
-  updateUsageBanner();
+function toggleAsset(a, el) {
+  el.classList.toggle('sel');
+  S.assets = S.assets.includes(a) ? S.assets.filter(x => x !== a) : [...S.assets, a];
+  document.getElementById('btn3').disabled = S.assets.length === 0;
 }
 
-// プラン判定（'pro' / 'lite' / 'free'）
-function getActivePlan() {
-  if (S.proUnlocked)  return 'pro';
-  if (S.liteUnlocked) return 'lite';
-  return 'free';
+function selectRadio(key, val, el) {
+  el.closest('.radio-row').querySelectorAll('.radio-btn').forEach(b => b.classList.remove('sel'));
+  el.classList.add('sel');
+  S[key] = val;
+  checkStep2();
 }
 
-// ========== USAGE BANNER ==========
-function updateUsageBanner() {
-  const ids = ['banner-top', 'banner-quiz', 'banner-result'];
-  let html, cls, clickable = false;
-  const plan = getActivePlan();
-
-  if (plan === 'pro') {
-    html = '🔓 Pro版でご利用中　ありがとうございます';
-    cls  = 'banner-pro';
-  } else if (plan === 'lite') {
-    html = '📘 ライト版でご利用中　ありがとうございます';
-    cls  = 'banner-lite';
-  } else if (S.usageCount === 0) {
-    html = '🎁 今なら3回まで無料でお試しいただけます（登録不要）';
-    cls  = 'banner-fresh';
-  } else if (S.usageCount === 1) {
-    html = '🎁 無料体験 残り2回（全3回）';
-    cls  = 'banner-using';
-  } else if (S.usageCount === 2) {
-    html = '🎁 無料体験 残り1回（全3回）';
-    cls  = 'banner-using';
-  } else {
-    html = '⚠️ 無料体験が終了しました　ご購入はこちら →';
-    cls  = 'banner-end';
-    clickable = true;
-  }
-
-  ids.forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.innerHTML = html;
-    el.className = 'usage-banner ' + cls;
-    el.onclick = clickable ? showUpgradeModal : null;
-  });
+function checkStep2() {
+  document.getElementById('btn2').disabled = !(S.spouse && S.children && S.prevchild && S.thirdparty);
 }
 
-function updateProBadge() {
-  const badge = document.getElementById('pro-status-badge');
-  if (!badge) return;
-  const plan = getActivePlan();
-  if (plan === 'pro') {
-    badge.style.display = 'inline-block';
-    badge.style.background = 'linear-gradient(135deg,#b07d10,#daa520)';
-    badge.textContent = '🔓 Pro版';
-  } else if (plan === 'lite') {
-    badge.style.display = 'inline-block';
-    badge.style.background = 'linear-gradient(135deg,#047857,#10b981)';
-    badge.textContent = '📘 ライト版';
-  } else {
-    badge.style.display = 'none';
-  }
+// ===== RESULT =====
+async function goToResult() {
+  if (!isUnlocked && useCount >= FREE_LIMIT) { showPaywall(); return; }
+  goStep(5);
+  document.getElementById('resultContent').innerHTML = buildLoadingHTML();
+  await generateWithAI();
 }
 
-function showUpgradeModal() {
-  const remain = Math.max(0, FREE_LIMIT - S.usageCount);
-  document.getElementById('upg-usage').textContent = `無料お試し ${S.usageCount} / ${FREE_LIMIT} 回（残り${remain}回）`;
-  document.getElementById('upgrade-modal').style.display = 'flex';
-}
-function closeUpgradeModal() {
-  document.getElementById('upgrade-modal').style.display = 'none';
-}
-
-function goToStripe() {
-  window.open(STRIPE_URL, '_blank');
+function buildLoadingHTML() {
+  return `
+    <div class="generating-box">
+      <div class="generating-icon">⚙️</div>
+      <div class="generating-text">あなたの遺言書を作成しています…<br>少々お待ちください</div>
+    </div>`;
 }
 
-function goToNote() {
-  if (NOTE_URL === '【リンク】') {
-    alert('⚠️ note販売ページのURLが未設定です。\nHTML内の NOTE_URL を実際のURLに差し替えてください。');
-    return;
-  }
-  window.open(NOTE_URL, '_blank');
+// ===== AI GENERATION =====
+function buildGenerationPrompt() {
+  const reasonMap = { specific:'特定の人に財産を渡したい', trouble:'もめごとを防ぎたい', message:'家族への想いを伝えたい', business:'事業を継がせたい', complex:'家族構成が複雑', charity:'相続人以外への遺贈' };
+  const willtypeMap = { jihitsu:'自筆証書遺言', kosho:'公正証書遺言', unsure:'どちらか迷っている' };
+  const assetMap = { land:'土地・建物', farm:'農地・山林', bank:'預貯金・現金', stock:'株・投資信託', insurance:'生命保険', goods:'車・貴金属・美術品', business:'会社・事業・自社株', debt:'借金・ローン' };
+
+  return `以下のユーザー情報をもとに、遺言書の書き方ガイドと遺言書のドラフトを日本語で作成してください。
+
+【ユーザー情報】
+遺言書を作りたい理由：${reasonMap[S.reason] || S.reason}
+配偶者：${S.spouse === 'yes' ? 'いる（存命）' : S.spouse === 'dead' ? 'すでに亡くなっている' : 'いない'}
+子どもの人数：${S.children}人
+前配偶者との子：${S.prevchild === 'yes' ? 'いる' : 'いない'}
+相続人以外への遺贈：${S.thirdparty === 'yes' ? 'あり' : 'なし'}
+財産の種類：${S.assets.map(a => assetMap[a] || a).join('、') || 'なし'}
+希望する遺言書の種類：${willtypeMap[S.willtype] || S.willtype}
+
+【出力形式】
+必ず以下の2つのセクションに分けて出力してください。
+
+===GUIDE_START===
+（書き方ガイドをここに記載）
+各注意点を番号付きで5〜8項目。具体的で実践的な内容。
+自筆証書遺言の場合は「全文自筆必須」「日付・氏名・押印が必要」などの形式要件を必ず含める。
+公正証書遺言の場合は「公証役場への予約」「証人2名の手配」「必要書類」を含める。
+遺留分についても触れること。
+===GUIDE_END===
+
+===DRAFT_START===
+（遺言書ドラフトをここに記載）
+日本の法的形式に沿った遺言書の文章を作成する。
+○○○○の部分は「○○○○」とそのまま記載（ユーザーが後で記入できるように）。
+実際に使えるレベルの具体的な文章にすること。
+末尾に「令和　　年　　月　　日」「住所：」「氏名：　　　　　　　　　　㊞」を入れること。
+===DRAFT_END===
+
+注意：このドラフトはあくまでもたたき台であり、必ず専門家の確認が必要である旨を末尾に記載してください。`;
 }
 
-function showUnlockModal() {
-  closeUpgradeModal();
-  document.getElementById('pw-error').style.display = 'none';
-  document.getElementById('pw-input').value = '';
-  document.getElementById('unlock-modal').style.display = 'flex';
-  setTimeout(() => document.getElementById('pw-input').focus(), 80);
-}
-function closeUnlockModal() {
-  document.getElementById('unlock-modal').style.display = 'none';
-}
+function buildSystemPrompt() {
+  return `あなたは日本の相続・遺言書に詳しいやさしいAIアドバイザーです。
 
-function tryUnlock() {
-  const v = (document.getElementById('pw-input').value || '').trim();
+【重要な前提】
+・生成する遺言書はあくまでも「たたき台・ドラフト」です
+・必ず「専門家（弁護士・司法書士）への確認を推奨」する旨を含めてください
+・日本の民法に基づいた正確な内容にしてください
 
-  if (v === PRO_PASSWORD) {
-    // Pro版解除
-    S.proUnlocked = true;
-    localStorage.setItem(LS_UNLOCK, 'true');
-    closeUnlockModal();
-    updateProBadge();
-    updateUsageBanner();
-    alert('✅ Pro版が有効になりました。\n遺言書下書き＋Word出力もご利用いただけます。');
-    renderPremium();
-    showScreen('screen-premium');
-  } else if (v === LITE_PASSWORD) {
-    // ライト版解除
-    S.liteUnlocked = true;
-    localStorage.setItem(LS_LITE, 'true');
-    closeUnlockModal();
-    updateProBadge();
-    updateUsageBanner();
-    alert('✅ ライト版が有効になりました。\n詳細結果＋相続税試算＋PDF保存をご利用いただけます。');
-    renderPremium();
-    showScreen('screen-premium');
-  } else {
-    document.getElementById('pw-error').style.display = 'block';
-    document.getElementById('pw-input').value = '';
-    document.getElementById('pw-input').focus();
-  }
+【主要な法的知識】
+■ 自筆証書遺言（民法968条）
+- 全文・日付・氏名を自筆で書く（ワープロ・代筆は無効）
+- 押印が必要
+- 財産目録のみパソコン作成可（各ページに署名押印必要）
+- 法務局の「遺言書保管制度」を利用すると検認不要
+
+■ 公正証書遺言（民法969条）
+- 公証人が作成・保管
+- 証人2名が必要（相続人・受遺者は不可）
+- 費用：財産額により3万〜10万円程度
+- 最も確実で紛失・改ざんリスクなし
+
+■ 遺留分（民法1042条）
+- 子・配偶者は法定相続分の1/2が保障される
+- 父母は法定相続分の1/3
+- 兄弟姉妹には遺留分なし
+- 遺留分を侵害すると「遺留分侵害額請求」の対象になりうる
+
+■ 遺言の効力
+- 最新の遺言書が有効（日付が新しいものが優先）
+- 公正証書遺言は公証役場に登録されるため確実
+
+回答は温かく、わかりやすく、専門用語には説明を添えてください。`;
 }
 
-// Enter で送信
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' && document.getElementById('unlock-modal').style.display === 'flex') {
-    tryUnlock();
-  }
-});
-
-// 動作確認用：URLに ?reset=1 を付けるとカウント＆解放状態をリセット
-(function maybeReset(){
-  const p = new URLSearchParams(location.search);
-  if (p.get('reset') === '1') {
-    localStorage.removeItem(LS_USAGE);
-    localStorage.removeItem(LS_LITE);
-    localStorage.removeItem(LS_UNLOCK);
-    alert('🔄 試用カウント・ライト版・Pro版の解放状態をすべてリセットしました');
-    location.replace(location.pathname);
-  }
-})();
-
-// ========== PDF EXPORT ==========
-async function downloadPDF() {
-  if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
-    alert('PDF出力機能の読み込みに失敗しました。通信環境を確認してページを再読み込みしてください。');
-    return;
-  }
-  
-  const element = document.getElementById('screen-premium');
-  
-  // PDF出力用に一時的に表示を切り替え（ボタン等を隠し、印刷用ヘッダーを表示）
-  const noPrints = element.querySelectorAll('.no-print');
-  const printShows = element.querySelectorAll('.print-show');
-  
-  noPrints.forEach(el => el.style.display = 'none');
-  printShows.forEach(el => el.style.display = 'block');
-  
-  const originalBg = element.style.background;
-  element.style.background = '#ffffff'; // PDFの背景を白に固定
-
+async function generateWithAI() {
   try {
-    const canvas = await html2canvas(element, { 
-      scale: 2, // 高画質化
-      useCORS: true,
-      backgroundColor: '#ffffff'
+    const res = await fetch(API_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 2000,
+        system: buildSystemPrompt(),
+        messages: [{ role: 'user', content: buildGenerationPrompt() }]
+      })
     });
-    
-    const imgData = canvas.toDataURL('image/jpeg', 1.0);
-    const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
-    
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-    
-    // ページ分割処理
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    let heightLeft = pdfHeight;
-    let position = 0;
+    const data = await res.json();
+    const text = data.content?.[0]?.text || '';
 
-    pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight);
-    heightLeft -= pageHeight;
+    const guideMatch = text.match(/===GUIDE_START===([\s\S]*?)===GUIDE_END===/);
+    const draftMatch = text.match(/===DRAFT_START===([\s\S]*?)===DRAFT_END===/);
+    const guide = guideMatch ? guideMatch[1].trim() : text;
+    const draft = draftMatch ? draftMatch[1].trim() : '';
+    generatedDraft = draft;
 
-    while (heightLeft >= 0) {
-      position = heightLeft - pdfHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight);
-      heightLeft -= pageHeight;
+    if (!isUnlocked) {
+      useCount++;
+      localStorage.setItem(LS_KEY, useCount);
+      updateTrialBanner();
     }
 
-    pdf.save('遺言書みっけ_診断結果レポート.pdf');
-  } catch (err) {
-    console.error(err);
-    alert('PDFの作成中にエラーが発生しました。');
-  } finally {
-    // 表示を元に戻す
-    noPrints.forEach(el => el.style.display = '');
-    printShows.forEach(el => el.style.display = '');
-    element.style.background = originalBg;
+    document.getElementById('resultContent').innerHTML = buildResultHTML(guide, draft);
+    initChat();
+  } catch(e) {
+    document.getElementById('resultContent').innerHTML = `
+      <div class="generating-box">
+        <div style="font-size:32px;margin-bottom:12px;">⚠️</div>
+        <div class="generating-text">通信エラーが発生しました。<br>少し待ってから再度お試しください。</div>
+      </div>`;
   }
 }
+
+function buildResultHTML(guide, draft) {
+  const willtypeLabel = { jihitsu:'自筆証書遺言', kosho:'公正証書遺言', unsure:'遺言書（種類検討中）' };
+  const wl = willtypeLabel[S.willtype] || '遺言書';
+
+  // ガイドをパース（番号付きリストを分割）
+  const guideLines = guide.split('\n').filter(l => l.trim());
+  const guideItems = [];
+  let current = null;
+  for (const line of guideLines) {
+    const match = line.match(/^(\d+)[\.．\s、](.+)/);
+    if (match) {
+      if (current) guideItems.push(current);
+      current = { title: match[2].trim(), detail: '' };
+    } else if (current && line.trim()) {
+      current.detail += (current.detail ? ' ' : '') + line.trim();
+    } else if (line.trim() && !current) {
+      guideItems.push({ title: line.trim(), detail: '' });
+    }
+  }
+  if (current) guideItems.push(current);
+
+  const levelMap = ['urgent','important','normal','normal','normal','info','info','info'];
+
+  let html = `
+    <div class="result-hero">
+      <div class="result-tag">📜 あなたの遺言書 完成</div>
+      <div class="result-h">${wl}の<br>書き方ガイドとドラフトが<br>できました</div>
+      <div class="result-summary">以下の内容はあくまでもたたき台です。<br>必ず専門家（弁護士・司法書士）にご確認のうえ<br>ご活用ください。</div>
+    </div>
+
+    <div class="sec-title">書き方ガイド</div>
+    <div class="guide-list">
+      ${guideItems.map((item, i) => `
+        <div class="guide-item lv-${levelMap[i] || 'info'}">
+          <div class="guide-num">${i + 1}</div>
+          <div>
+            <div class="guide-title">${item.title}</div>
+            ${item.detail ? `<div class="guide-detail">${item.detail}</div>` : ''}
+          </div>
+        </div>`).join('')}
+    </div>`;
+
+  if (draft) {
+    html += `
+    <div class="sec-title">遺言書ドラフト</div>
+    <div class="draft-box">
+      <div class="draft-header">
+        <div class="draft-label">📄 遺言書（たたき台）</div>
+        <button class="btn-copy" id="copyBtn" onclick="copyDraft()">📋 コピー</button>
+      </div>
+      <div class="draft-content" id="draftContent">${draft.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+      <div class="draft-disclaimer">
+        ⚠️ このドラフトはAIが作成したたたき台です。そのままでは法的効力が保証されません。
+        必ず弁護士・司法書士にご確認のうえご使用ください。
+      </div>
+    </div>`;
+  }
+
+  html += `
+    <div class="crosssell-banner">
+      <div class="crosssell-icon">🏠</div>
+      <div class="crosssell-text">
+        <div class="crosssell-title">相続みっけ も使ってみませんか？</div>
+        <div class="crosssell-sub">財産の種類別に「やること一覧」と期限がわかります</div>
+      </div>
+      <button class="btn-crosssell" onclick="window.open('https://spc-jp.github.io/sozoku-mikke/','_blank')">使ってみる</button>
+    </div>
+
+    <div class="sec-title" style="margin-top:8px;">AIアドバイザーに相談する</div>`;
+
+  return html;
+}
+
+function copyDraft() {
+  const text = document.getElementById('draftContent').innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✓ コピー完了';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '📋 コピー'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// ===== AI CHAT =====
+function initChat() {
+  updateTrialBadge();
+  const sugs = buildSuggestions();
+  document.getElementById('aiSuggestions').innerHTML = sugs
+    .map(s => `<div class="ai-sug-btn" onclick="sendSuggestion('${s}')">${s}</div>`).join('');
+  const opening = `遺言書のドラフトができました😊\n内容を確認してみてください。\n「この表現で大丈夫？」「遺留分が心配」「証人は誰に頼めばいい？」など、何でも聞いてください！`;
+  addMessage('ai', opening);
+}
+
+function buildSuggestions() {
+  const base = ['遺留分ってなに？','証人は誰に頼めばいい？','公証役場の手続きは？','ドラフトをもっと詳しく'];
+  const extra = [];
+  if (S.prevchild === 'yes') extra.push('前妻の子への遺留分は？');
+  if (S.assets.includes('business')) extra.push('自社株の遺言書の書き方は？');
+  if (S.assets.includes('land')) extra.push('不動産の遺言書記載方法は？');
+  if (S.thirdparty === 'yes') extra.push('遺贈と相続の違いは？');
+  if (S.willtype === 'unsure') extra.push('自筆とどちらがおすすめ？');
+  return [...extra.slice(0, 3), ...base].slice(0, 6);
+}
+
+function updateTrialBadge() {
+  const b = document.getElementById('trialBadge');
+  if (!b) return;
+  if (isUnlocked) { b.textContent = '✨ 購入済'; b.style.background = 'rgba(208,169,0,0.3)'; }
+  else { const rem = Math.max(0, FREE_LIMIT - useCount); b.textContent = `残り${rem}回`; }
+}
+
+function updateTrialBanner() {
+  const inner = document.getElementById('trialBannerInner');
+  if (!inner) return;
+  if (isUnlocked) { inner.innerHTML = ''; return; }
+  const rem = Math.max(0, FREE_LIMIT - useCount);
+  const used = Math.min(useCount, FREE_LIMIT);
+  if (rem === 0) {
+    inner.innerHTML = `
+      <div class="trial-banner-end">
+        <div class="trial-banner-end-text">⚠️ 無料体験が終了しました<span>引き続きご利用には購入が必要です</span></div>
+        <button class="btn-banner-stripe" onclick="openStripe()">今すぐ購入 →</button>
+      </div>`;
+    return;
+  }
+  let dots = '';
+  for (let i = 0; i < FREE_LIMIT; i++) dots += `<div class="trial-dot${i < used ? ' used' : ''}"></div>`;
+  if (used === 0) {
+    inner.innerHTML = `
+      <div class="trial-banner-free">
+        <div class="trial-banner-icon">🎁</div>
+        <div class="trial-banner-text">
+          <div class="trial-banner-title">今なら3回まで無料でお試しいただけます</div>
+          <div class="trial-banner-sub">登録不要・個人情報の入力なし</div>
+        </div>
+        <div class="trial-banner-dots">${dots}</div>
+      </div>`;
+  } else {
+    inner.innerHTML = `
+      <div class="trial-banner-free">
+        <div class="trial-banner-icon">🎁</div>
+        <div class="trial-banner-text">
+          <div class="trial-banner-title">無料体験 残り${rem}回（全${FREE_LIMIT}回）</div>
+          <div class="trial-banner-sub">残り${rem}回で購入をお願いします</div>
+        </div>
+        <div class="trial-banner-dots">${dots}</div>
+      </div>`;
+  }
+}
+
+// ===== SEND =====
+function sendSuggestion(text) { document.getElementById('aiInput').value = text; sendMessage(); }
+function handleKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 120) + 'px'; }
+
+async function sendMessage() {
+  const input = document.getElementById('aiInput');
+  const text = input.value.trim();
+  if (!text) return;
+  if (!isUnlocked && useCount >= FREE_LIMIT) { showPaywall(); return; }
+  input.value = ''; input.style.height = 'auto';
+  addMessage('user', text);
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true;
+  const typingId = addTyping();
+  chatHistory.push({ role:'user', content: text });
+  try {
+    const res = await fetch(API_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 600,
+        system: buildSystemPrompt() + `\n\n【生成したドラフト】\n${generatedDraft}`,
+        messages: chatHistory
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || 'うまく回答できませんでした。もう一度試してください。';
+    removeTyping(typingId);
+    addMessage('ai', reply);
+    chatHistory.push({ role:'assistant', content: reply });
+  } catch(e) {
+    removeTyping(typingId);
+    addMessage('ai', '⚠️ 通信エラーが発生しました。少し待ってから再度お試しください。');
+  }
+  btn.disabled = false;
+}
+
+function addMessage(role, text) {
+  const wrap = document.getElementById('aiMessages');
+  if (!wrap) return;
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.innerHTML = `<div class="msg-avatar">${role === 'ai' ? '🤖' : '👤'}</div><div class="msg-bubble">${text.replace(/\n/g,'<br>')}</div>`;
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+let tCounter = 0;
+function addTyping() {
+  const id = 'tp' + (++tCounter);
+  const wrap = document.getElementById('aiMessages');
+  if (!wrap) return id;
+  const div = document.createElement('div');
+  div.className = 'msg ai'; div.id = id;
+  div.innerHTML = `<div class="msg-avatar">🤖</div><div class="msg-bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+  return id;
+}
+function removeTyping(id) { const el = document.getElementById(id); if (el) el.remove(); }
+
+// ===== PAYWALL =====
+function showPaywall() { document.getElementById('paywallOverlay').classList.add('show'); }
+function openStripe() { window.open(STRIPE_URL, '_blank'); }
+function checkPass() {
+  if (document.getElementById('passInput').value === UNLOCK_PASS) {
+    isUnlocked = true;
+    localStorage.setItem(LS_UNLOCKED, 'true');
+    document.getElementById('paywallOverlay').classList.remove('show');
+    document.getElementById('passErr').textContent = '';
+    updateTrialBanner();
+    updateTrialBadge();
+  } else {
+    document.getElementById('passErr').textContent = 'パスワードが違います。';
+  }
+}
+
+// ===== RESTART =====
+function restart() {
+  Object.assign(S, { reason:null, spouse:null, children:null, prevchild:null, thirdparty:null, assets:[], willtype:null });
+  chatHistory = []; generatedDraft = '';
+  document.querySelectorAll('.choice-card,.grid-card').forEach(c => c.classList.remove('sel'));
+  document.querySelectorAll('.radio-btn').forEach(b => b.classList.remove('sel'));
+  ['btn1','btn2','btn3','btn4'].forEach(id => { const el = document.getElementById(id); if(el) el.disabled = true; });
+  const msgs = document.getElementById('aiMessages');
+  if (msgs) msgs.innerHTML = '';
+  goStep(0);
+}
+
+// ===== INIT =====
+updateTrialBanner();
 </script>
-<!-- ========== UPGRADE MODAL (4回目以降表示) ========== -->
-<div id="upgrade-modal" class="overlay" style="display:none;">
-  <div class="modal" style="text-align:center; max-width:480px;">
-    <div style="font-size:48px;margin-bottom:8px;">🔒</div>
-    <h3 class="serif" style="font-size:20px;font-weight:700;color:#1f2937;margin-bottom:8px;">無料お試しが終了しました</h3>
-    <p id="upg-usage" style="font-size:12px;color:#6b7280;margin-bottom:14px;">無料お試し 3 / 3 回</p>
-    <p style="font-size:14px;color:#374151;line-height:1.7;margin-bottom:18px;">
-      引き続きご利用いただくには、<br>下記いずれかのプランをお選びください。
-    </p>
 
-    <!-- ライト版カード -->
-    <div style="background:#ecfdf5;border:2px solid #10b981;border-radius:12px;padding:16px;margin-bottom:14px;text-align:left;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <p style="font-size:14px;font-weight:700;color:#047857;">📘 ライト版（買い切り）</p>
-        <p style="font-size:18px;font-weight:700;color:#047857;">980円</p>
+<!-- AIチャットUI（step5内に動的に追加されるため共通テンプレートとして末尾に定義） -->
+<template id="aiChatTemplate">
+  <div class="ai-section" id="aiSection">
+    <div class="ai-header">
+      <div class="ai-avatar">🤖</div>
+      <div>
+        <div class="ai-header-name">遺言書AIアドバイザー</div>
+        <div class="ai-header-sub">遺言書の疑問に何でも答えます</div>
       </div>
-      <ul style="font-size:12px;color:#374151;line-height:1.8;list-style:none;padding:0;margin-bottom:10px;">
-        <li>✅ 何度でも診断OK</li>
-        <li>✅ 詳細結果＋相続税ざっくり試算</li>
-        <li>✅ PDF保存OK</li>
-        <li style="color:#9ca3af;">✗ 遺言書下書き全文 / Word出力なし</li>
-      </ul>
-      <button onclick="goToNote()" class="btn-sub" style="width:100%;background:#10b981;color:#fff;border-color:#10b981;padding:10px 20px;font-size:14px;">💳 noteで980円購入</button>
+      <div class="ai-trial-badge" id="trialBadge">残り3回</div>
     </div>
-
-    <!-- Pro版カード -->
-    <div style="background:#fffbeb;border:2px solid #fcd34d;border-radius:12px;padding:16px;margin-bottom:14px;text-align:left;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <p style="font-size:14px;font-weight:700;color:#b45309;">👑 Pro版（買い切り）</p>
-        <p style="font-size:18px;font-weight:700;color:#b45309;">2,980円</p>
-      </div>
-      <ul style="font-size:12px;color:#374151;line-height:1.8;list-style:none;padding:0;margin-bottom:10px;">
-        <li>✅ 何度でも診断OK</li>
-        <li>✅ 詳細結果＋相続税ざっくり試算</li>
-        <li>✅ <strong>遺言書下書き全文</strong></li>
-        <li>✅ PDF ＋ <strong>Word</strong> 両方OK</li>
-        <li>✅ 準備チェックリスト</li>
-      </ul>
-      <button onclick="goToStripe()" class="btn-gold" style="width:100%;padding:10px 20px;font-size:14px;">💳 Stripeで2,980円購入</button>
+    <div class="ai-suggestion-wrap">
+      <div class="ai-suggestion-label">💬 よく聞かれる質問</div>
+      <div class="ai-suggestions" id="aiSuggestions"></div>
     </div>
-
-    <button onclick="showUnlockModal()" class="btn-sub" style="width:100%;margin-bottom:8px;font-size:13px;padding:10px 20px;">🔑 すでにご購入の方（パスワード入力）</button>
-    <button onclick="closeUpgradeModal()" style="background:none;border:none;color:#9ca3af;font-size:13px;cursor:pointer;margin-top:6px;">閉じる</button>
+    <div class="ai-messages" id="aiMessages"></div>
+    <div class="ai-input-row">
+      <textarea class="ai-input" id="aiInput"
+        placeholder="例：遺留分について詳しく教えて"
+        rows="1"
+        onkeydown="handleKey(event)"
+        oninput="autoResize(this)"></textarea>
+      <button class="ai-send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+    </div>
   </div>
-</div>
+</template>
 
-<!-- ========== UNLOCK MODAL (パスワード入力) ========== -->
-<div id="unlock-modal" class="overlay" style="display:none;">
-  <div class="modal">
-    <div style="text-align:center;font-size:42px;margin-bottom:6px;">🔑</div>
-    <h3 class="serif" style="font-size:19px;font-weight:700;color:#1f2937;text-align:center;margin-bottom:6px;">パスワード入力</h3>
-    <p style="font-size:13px;color:#6b7280;text-align:center;margin-bottom:16px;line-height:1.6;">
-      ご購入時にお届けしたパスワードを入力してください。
-    </p>
-    <input id="pw-input" type="text" placeholder="パスワードを入力" autocomplete="off"
-           style="width:100%;padding:14px 16px;font-size:16px;border:2px solid #e5e7eb;border-radius:12px;outline:none;font-family:'Noto Sans JP',sans-serif;margin-bottom:8px;"
-           onfocus="this.style.borderColor='#225AD3';" onblur="this.style.borderColor='#e5e7eb';">
-    <p id="pw-error" style="display:none;color:#dc2626;font-size:12px;margin-bottom:10px;">⚠️ パスワードが違います。もう一度ご確認ください。</p>
-    <button onclick="tryUnlock()" class="btn-main" style="width:100%;margin-top:8px;">解除する</button>
-    <button onclick="closeUnlockModal()" style="background:none;border:none;color:#9ca3af;font-size:13px;cursor:pointer;width:100%;margin-top:10px;">閉じる</button>
-  </div>
-</div>
-
+<script>
+// AIチャットUIをstep5に埋め込む
+const originalGoToResult = goToResult;
+// buildResultHTML の末尾にAIチャットUIを追加するため上書き
+const _buildResultHTML = buildResultHTML;
+window.buildResultHTML = function(guide, draft) {
+  const base = _buildResultHTML(guide, draft);
+  const tmpl = document.getElementById('aiChatTemplate');
+  const chatHTML = tmpl ? tmpl.innerHTML : '';
+  return base + chatHTML;
+};
+</script>
 </body>
 </html>
